@@ -8,7 +8,7 @@ pub struct Demo {
 
 impl Default for Demo {
     fn default() -> Self {
-        Self {  }
+        Self {}
     }
 }
 

@@ -1582,6 +1582,7 @@ name = "keystroke-biometrics"
 version = "0.1.0"
 dependencies = [
  "eframe",
+ "rand",
 ]
 
 [[package]]
