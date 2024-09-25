@@ -1,6 +1,6 @@
 use crate::util::gen_passage;
 use eframe::{
-    egui::{pos2, Align2, CentralPanel, Color32, Context, FontId, Label, RichText, Sense, Ui}, emath::Float, App, CreationContext, Frame
+    egui::{pos2, Align2, CentralPanel, Color32, Context, FontId, Ui}, App, CreationContext, Frame
 };
 
 pub struct Demo {
