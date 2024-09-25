@@ -4,7 +4,10 @@ mod demo;
 mod util;
 
 use demo::Demo;
-use eframe::{egui::{IconData, ViewportBuilder}, run_native, Error, NativeOptions, Result};
+use eframe::{
+    egui::{IconData, ViewportBuilder},
+    run_native, Error, NativeOptions, Result,
+};
 
 fn main() -> Result<(), Error> {
     let native_options = NativeOptions {
