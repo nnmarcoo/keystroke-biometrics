@@ -1,6 +1,7 @@
 use crate::util::gen_passage;
 use eframe::{
-    egui::{pos2, Align2, CentralPanel, Color32, Context, FontId, Ui}, App, CreationContext, Frame
+    egui::{pos2, Align2, CentralPanel, Color32, Context, FontId, TextEdit, Ui},
+    App, CreationContext, Frame,
 };
 
 pub struct Demo {
@@ -11,7 +12,7 @@ pub struct Demo {
 impl Default for Demo {
     fn default() -> Self {
         Self {
-            passage: gen_passage(15),
+            passage: gen_passage(),
             input: String::new(),
         }
     }
@@ -23,19 +24,42 @@ impl Demo {
     }
 
     fn typing_ui(&mut self, ui: &mut Ui) {
-        ui.horizontal_wrapped(|ui| {
-            for (i, target_char) in self.passage.chars().enumerate() {
-                let painter = ui.painter();
+        let painter = ui.painter();
+        let mut x = 0.;
+        let mut y = 50.;
 
-            let pos = pos2((i as f32) * 16., 25.);
+        let font_id = FontId::monospace(16.);
+        let char_spacing = 10.0;
+        let available_width = ui.available_width();
 
-            painter.text(pos, Align2::LEFT_CENTER, target_char, FontId::monospace(16.), Color32::GRAY);
+        for word in self.passage.split_whitespace() {
+            let word_width = word.chars().count() as f32 * char_spacing;
+
+            if x + word_width > available_width {
+                x = 0.;
+                y += 25.;
             }
-        });
 
-        ui.text_edit_singleline(&mut self.input);
+            for c in word.chars() {
+                painter.text(
+                    pos2(x + 10., y),
+                    Align2::LEFT_CENTER,
+                    c,
+                    font_id.clone(),
+                    Color32::GRAY,
+                );
+                x += char_spacing;
+            }
+
+            x += char_spacing;
+        }
+
+        ui.add_space(4.);
+        ui.add_sized(
+            [ui.available_width(), 16.],
+            TextEdit::singleline(&mut self.input).hint_text("Start typing here"),
+        );
     }
-    
 }
 
 impl App for Demo {

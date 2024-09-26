@@ -1,6 +1,6 @@
 use rand::seq::SliceRandom;
 
-pub fn gen_passage(length: i32) -> String {
+pub fn gen_passage() -> String {
     let words = vec![
         "amazingly bob can dance elegantly flipping gracefully near open ponds quick rabbits jumped keenly leaping many nearby obstacles portraying quiet resilience silly turtles undertake vast journeys exploring wild zones and beautiful colors",
         "alligators bask calmly diving effortlessly into flowing green habitats intrepid jaguars keep lookout moving nimbly observing playful quokkas resting silently turtles usually venture wandering xenophobic yet zealous",
@@ -13,9 +13,10 @@ pub fn gen_passage(length: i32) -> String {
         "giant kangaroo leaped magnificently navigating open pastures quickly resting silently turtles utilized various warm zones yet quickly yielded zest",
         "jackal kept leaping mightily nimbly observing playful quokkas resting silently turtles undertook various wild journeys yielding zeal in their exploration",
     ];
-    
-    let passage: Vec<&str> = words.choose_multiple(&mut rand::thread_rng(), length as usize)
-                                  .cloned()
-                                  .collect();
+
+    let passage: Vec<&str> = words
+        .choose_multiple(&mut rand::thread_rng(), 1)
+        .cloned()
+        .collect();
     passage.join(" ")
 }
