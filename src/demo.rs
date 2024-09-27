@@ -36,7 +36,6 @@ impl Demo {
 
         let mut input_index = 0;
 
-        // Define softer colors for green and red
         let soft_green = Color32::from_rgb(119, 221, 119); // #77dd77
         let soft_red = Color32::from_rgb(255, 105, 97);    // #ff6961
 
