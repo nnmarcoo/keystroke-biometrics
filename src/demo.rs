@@ -32,6 +32,14 @@ impl Demo {
         let char_spacing = 10.0;
         let available_width = ui.available_width();
 
+        let mut input_chars = self.input.chars().peekable();
+
+        let mut input_index = 0;
+
+        // Define softer colors for green and red
+        let soft_green = Color32::from_rgb(119, 221, 119); // #77dd77
+        let soft_red = Color32::from_rgb(255, 105, 97);    // #ff6961
+
         for word in self.passage.split_whitespace() {
             let word_width = word.chars().count() as f32 * char_spacing;
 
@@ -41,16 +49,49 @@ impl Demo {
             }
 
             for c in word.chars() {
+                let typed_char = input_chars.peek();
+
+                let color = if let Some(&typed) = typed_char {
+                    input_index += 1;
+                    if typed == c {
+                        soft_green
+                    } else {
+                        soft_red
+                    }
+                } else {
+                    Color32::GRAY
+                };
+
                 painter.text(
                     pos2(x + 10., y),
                     Align2::LEFT_CENTER,
                     c,
                     font_id.clone(),
-                    Color32::GRAY,
+                    color,
                 );
                 x += char_spacing;
+
+                input_chars.next();
             }
 
+            if input_index < self.input.len() {
+                if let Some(&next_input_char) = input_chars.peek() {
+                    let color = if next_input_char == ' ' {
+                        soft_green
+                    } else {
+                        soft_red
+                    };
+                    painter.text(
+                        pos2(x + 10., y),
+                        Align2::LEFT_CENTER,
+                        ' ',
+                        font_id.clone(),
+                        color,
+                    );
+                    input_chars.next();
+                    input_index += 1;
+                }
+            }
             x += char_spacing;
         }
 
