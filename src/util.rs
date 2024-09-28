@@ -13,7 +13,7 @@ pub fn gen_passage() -> String {
         "giant kangaroo leaped magnificently navigating open pastures quickly resting silently turtles utilized various warm zones yet quickly yielded zest",
         "jackal kept leaping mightily nimbly observing playful quokkas resting silently turtles undertook various wild journeys yielding zeal in their exploration",
     ];
-
+    // lol change this
     let passage: Vec<&str> = words
         .choose_multiple(&mut rand::thread_rng(), 1)
         .cloned()
