@@ -1,6 +1,6 @@
 use crate::util::gen_passage;
 use eframe::{
-    egui::{pos2, Align2, CentralPanel, Color32, Context, FontId, TextEdit, Ui},
+    egui::{pos2, Align2, CentralPanel, Color32, Context, FontId, TextEdit, Ui, Button},
     App, CreationContext, Frame,
 };
 
@@ -29,11 +29,10 @@ impl Demo {
         let mut y = 50.;
 
         let font_id = FontId::monospace(16.);
-        let char_spacing = 10.0;
+        let char_spacing = 10.;
         let available_width = ui.available_width();
 
         let mut input_chars = self.input.chars().peekable();
-
         let mut input_index = 0;
 
         let soft_green = Color32::from_rgb(119, 221, 119); // #77dd77
@@ -95,10 +94,18 @@ impl Demo {
         }
 
         ui.add_space(4.);
-        ui.add_sized(
-            [ui.available_width(), 16.],
-            TextEdit::singleline(&mut self.input).hint_text("Start typing here"),
-        );
+
+        ui.horizontal(|ui| {
+            ui.add_sized(
+                [ui.available_width() - 28., 16.],
+                TextEdit::singleline(&mut self.input).hint_text("Start typing here"),
+            );
+
+            if ui.add_sized([16., 16.], Button::new("⟲")).on_hover_text("Generate new passage").clicked() {
+                self.passage = gen_passage();
+                self.input.clear();
+            }
+        });
     }
 }
 
