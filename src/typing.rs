@@ -94,7 +94,7 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
                 app.removed_char = last_char;
                 app.previous_length = input_length;
             } else {
-                app.type_data.reset();
+                reset(app);
             }
         }
 
@@ -105,10 +105,14 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
         {
             app.passage = gen_passage();
             app.input.clear();
-            app.type_data.reset();
-            app.previous_length = 0;
-            app.removed_char = char::REPLACEMENT_CHARACTER;
+            reset(app);
         }
     });
     y
+}
+
+fn reset(app: &mut Demo) {
+    app.removed_char = char::REPLACEMENT_CHARACTER;
+    app.previous_length = 0;
+    app.type_data.reset();
 }

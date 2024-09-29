@@ -23,7 +23,14 @@ impl Data {
             if let Some((previous_char, previous_time)) = self.last_char {
                 let duration = now.duration_since(previous_time);
                 let pair = format!("{}{}", previous_char, new_char);
-                self.pair_timings.insert(pair.clone(), duration);
+
+                let old_duration = self.pair_timings.get(&pair);
+                if let Some(old_duration) = old_duration {
+                    self.pair_timings
+                        .insert(pair.clone(), (duration + *old_duration) / 2);
+                } else {
+                    self.pair_timings.insert(pair.clone(), duration);
+                }
             }
             self.last_char = Some((new_char, now));
         } else {
