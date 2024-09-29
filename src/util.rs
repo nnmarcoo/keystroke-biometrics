@@ -13,7 +13,6 @@ pub fn gen_passage() -> String {
         "gentle hen invited joyful kids lending many nutritious offerings peacocks quickly roamed showcasing their vibrant wings xerophytes yielding zest all around",
         "giant kangaroo leaped magnificently navigating open pastures quickly resting silently turtles utilized various warm zones yet quickly yielded zest",
         "jackal kept leaping mightily nimbly observing playful quokkas resting silently turtles undertook various wild journeys yielding zeal in their exploration",
-        "this is a short test",
     ];
     // lol change this
     let passage: Vec<&str> = words
@@ -24,7 +23,6 @@ pub fn gen_passage() -> String {
 }
 
 pub fn key_to_char(key: Key) -> Option<char> {
-    // This maps the key to a character; add more mappings as needed
     match key {
         Key::A => Some('a'),
         Key::B => Some('b'),
@@ -53,7 +51,6 @@ pub fn key_to_char(key: Key) -> Option<char> {
         Key::Y => Some('y'),
         Key::Z => Some('z'),
         Key::Space => Some(' '),
-        Key::Enter => Some('\n'),
         _ => None,
     }
 }

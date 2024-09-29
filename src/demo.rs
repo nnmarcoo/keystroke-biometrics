@@ -1,6 +1,8 @@
+use std::collections::HashSet;
+
 use crate::{data::Data, typing::render_typing, util::gen_passage};
 use eframe::{
-    egui::{CentralPanel, Context},
+    egui::{CentralPanel, Context, Key},
     App, CreationContext, Frame,
 };
 
@@ -8,8 +10,12 @@ pub struct Demo {
     pub passage: String,
     pub input: String,
     pub previous_length: usize,
-    pub removed_char: char,
     pub type_data: Data,
+
+    pub previous_keys: HashSet<Key>,
+    pub backspace_debounce: i32,
+    pub username: String,
+    pub focused_username: bool,
 }
 
 impl Default for Demo {
@@ -18,8 +24,12 @@ impl Default for Demo {
             passage: gen_passage(),
             input: String::new(),
             previous_length: 0,
-            removed_char: char::REPLACEMENT_CHARACTER,
             type_data: Data::new(),
+
+            previous_keys: HashSet::new(),
+            backspace_debounce: 0,
+            username: String::new(),
+            focused_username: false,
         }
     }
 }

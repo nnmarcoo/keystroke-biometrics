@@ -1,5 +1,8 @@
-use crate::{demo::Demo, util::gen_passage};
-use eframe::egui::{pos2, Align2, Button, Color32, FontId, TextEdit, Ui};
+use crate::{
+    demo::Demo,
+    util::{gen_passage, key_to_char},
+};
+use eframe::egui::{pos2, Align2, Button, Color32, FontId, Key, Stroke, TextEdit, Ui};
 
 pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
     let painter = ui.painter();
@@ -46,7 +49,6 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
                 color,
             );
             x += char_spacing;
-
             input_chars.next();
         }
 
@@ -73,34 +75,63 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
 
     ui.add_space(4.);
 
-    //ui.input(|i| {
-    //    println!("{:?}", i.keys_down);
-    //});
+    ui.input(|i| {
+        if app.focused_username {
+            return;
+        }
 
-    ui.horizontal(|ui| {
-        if ui
-            .add_sized(
-                [ui.available_width() - 28., 16.],
-                TextEdit::singleline(&mut app.input).hint_text("Start typing here"),
-            )
-            .changed()
-        {
-            let last_char = app.input.chars().last();
-            if let Some(last_char) = last_char {
-                let input_length = app.input.len();
-                if input_length > app.previous_length {
-                    app.type_data.record_char(last_char);
-                } else {
-                    app.type_data.add_error();
-                    app.type_data
-                        .remove_pair(&format!("{}{}", last_char, app.removed_char));
+        let current_keys = i.keys_down.clone();
+        let new_keys = current_keys.difference(&app.previous_keys);
+
+        if current_keys.contains(&Key::Backspace) {
+            app.backspace_debounce += 1;
+            if app.backspace_debounce == 4 {
+                app.backspace_debounce = 0;
+                if app.input.len() > 1 {
+                    let last_two = {
+                        let split = app.input.char_indices().nth_back(1).unwrap().0;
+                        &app.input[split..]
+                    };
+                    if !last_two.contains(' ') {
+                        app.type_data.pop();
+                    }
                 }
-                app.removed_char = last_char;
-                app.previous_length = input_length;
-            } else {
-                reset(app);
+                app.type_data.reset_last_char();
+                app.input.pop();
             }
         }
+
+        for key in new_keys {
+            if *key != Key::Backspace {
+                if let Some(ch) = key_to_char(*key) {
+                    app.type_data.record_char(ch);
+                    app.input.push(ch);
+                }
+            } else if *key == Key::Backspace {
+                app.backspace_debounce = 0;
+                if app.input.len() > 1 {
+                    let last_two = {
+                        let split = app.input.char_indices().nth_back(1).unwrap().0;
+                        &app.input[split..]
+                    };
+                    if !last_two.contains(' ') {
+                        app.type_data.pop();
+                    }
+                }
+                app.type_data.reset_last_char();
+                app.input.pop();
+            }
+        }
+        app.previous_keys = current_keys;
+    });
+
+    ui.horizontal(|ui| {
+        app.focused_username = ui
+            .add_sized(
+                [100., 16.],
+                TextEdit::singleline(&mut app.username).hint_text("Enter name"),
+            )
+            .has_focus();
 
         if ui
             .add_sized([16., 16.], Button::new("⟲"))
@@ -116,7 +147,6 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
 }
 
 fn reset(app: &mut Demo) {
-    app.removed_char = char::REPLACEMENT_CHARACTER;
     app.previous_length = 0;
     app.type_data.reset();
 }

@@ -1,9 +1,8 @@
 use eframe::egui::{ScrollArea, Ui};
-use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
 pub struct Data {
-    pair_timings: HashMap<String, Duration>,
+    pair_timings: Vec<(String, Duration)>, // Changed to Vec<(String, Duration)>
     last_char: Option<(char, Instant)>,
     corrections: i32,
 }
@@ -11,7 +10,7 @@ pub struct Data {
 impl Data {
     pub fn new() -> Self {
         Self {
-            pair_timings: HashMap::new(),
+            pair_timings: Vec::new(), // Initialize Vec
             last_char: None,
             corrections: 0,
         }
@@ -24,12 +23,12 @@ impl Data {
                 let duration = now.duration_since(previous_time);
                 let pair = format!("{}{}", previous_char, new_char);
 
-                let old_duration = self.pair_timings.get(&pair);
-                if let Some(old_duration) = old_duration {
-                    self.pair_timings
-                        .insert(pair.clone(), (duration + *old_duration) / 2);
+                if let Some((_, old_duration)) =
+                    self.pair_timings.iter_mut().find(|(p, _)| *p == pair)
+                {
+                    *old_duration = (*old_duration + duration) / 2;
                 } else {
-                    self.pair_timings.insert(pair.clone(), duration);
+                    self.pair_timings.push((pair.clone(), duration));
                 }
             }
             self.last_char = Some((new_char, now));
@@ -42,8 +41,12 @@ impl Data {
         self.corrections += 1;
     }
 
-    pub fn remove_pair(&mut self, k: &String) {
-        self.pair_timings.remove(k);
+    pub fn reset_last_char(&mut self) {
+        self.last_char = None;
+    }
+
+    pub fn pop(&mut self) {
+        self.pair_timings.pop();
     }
 
     pub fn reset(&mut self) {
