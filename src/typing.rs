@@ -73,6 +73,10 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
 
     ui.add_space(4.);
 
+    //ui.input(|i| {
+    //    println!("{:?}", i.keys_down);
+    //});
+
     ui.horizontal(|ui| {
         if ui
             .add_sized(
