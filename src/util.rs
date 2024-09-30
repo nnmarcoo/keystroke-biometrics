@@ -1,24 +1,35 @@
-use eframe::egui::Key;
+use eframe::egui::{IconData, Key};
+use image::load_from_memory;
 use rand::seq::SliceRandom;
 
-pub fn gen_passage() -> String {
+pub fn gen_passage(length: usize) -> String {
     let words = vec![
-        "amazingly bob can dance elegantly flipping gracefully near open ponds quick rabbits jumped keenly leaping many nearby obstacles portraying quiet resilience silly turtles undertake vast journeys exploring wild zones and beautiful colors",
-        "alligators bask calmly diving effortlessly into flowing green habitats intrepid jaguars keep lookout moving nimbly observing playful quokkas resting silently turtles usually venture wandering xenophobic yet zealous",
-        "bird can fly gracefully hovering in joyful kindness lending many new opportunities playful quokkas rest silently taking unique vacations while xerophytes yield zest",
-        "curious dog explored fields gathering herbs and intriguing jellies keenly it leaped making new observations playing quietly under vibrant wildflowers xerophytes yielding zest",
-        "fox galloped hastily ignoring jagged knolls lively mice navigated open paths quietly resting slowly transitioning under various willows xenophobic yet yielding zebras approached calmly",
-        "always brave charlie dug eagerly for golden hidden jewels keeping low mice nibbled on peanuts quietly resting stealing treats under various wildflowers xenophobic yet zealous",
-        "friendly gorilla hid in jungle knolls looking for mischievous nocturnal opossums playful quails roamed silently trailing under vines while xenophytes yielded zest",
-        "gentle hen invited joyful kids lending many nutritious offerings peacocks quickly roamed showcasing their vibrant wings xerophytes yielding zest all around",
-        "giant kangaroo leaped magnificently navigating open pastures quickly resting silently turtles utilized various warm zones yet quickly yielded zest",
-        "jackal kept leaping mightily nimbly observing playful quokkas resting silently turtles undertook various wild journeys yielding zeal in their exploration",
+        "apple", "bottle", "create", "dragon", "energy", "family", "giant", "hollow", "iceberg", "jungle",
+        "kitten", "lemon", "mountain", "notion", "orange", "python", "quiver", "raven", "system", "tiger",
+        "umbrella", "vivid", "whisper", "xenon", "yellow", "zebra", "anchor", "butter", "clown", "dynamo",
+        "eagle", "frost", "grape", "hammer", "island", "jacket", "kettle", "lantern", "monster", "novel",
+        "ocean", "puzzle", "quartz", "rabbit", "shadow", "tornado", "unicorn", "valley", "wizard", "xerox",
+        "yawn", "zephyr", "abyss", "balance", "circle", "daring", "echo", "feather", "glimmer", "horizon",
+        "ignite", "journey", "keypad", "library", "motion", "network", "oasis", "panic", "radiant", "signal",
+        "tempo", "utopia", "venture", "whale", "yodel", "zealot", "arch", "biscuit", "cloud", "disaster",
+        "ember", "feast", "glory", "harvest", "impact", "joker", "knot", "light", "moment", "nature", "option",
+        "pillar", "query", "rescue", "shield", "track", "union", "vector", "whimsy", "zone", "arrow", "bubble",
+        "candle", "dust", "envy", "flash", "gleam", "habit", "ink", "juggle", "kiosk", "link", "mirror", "navy",
+        "orchid", "plume", "quilt", "razor", "siren", "trick", "under", "victor", "xray", "yearn", "zero",
+        "angle", "branch", "cabin", "delta", "flame", "gloom", "hatch", "ivory", "jigsaw", "kite", "leaf",
+        "mask", "naval", "pistol", "quote", "river", "spark", "tide", "velvet", "wind", "yarn", "zinc", "aura",
+        "blend", "crane", "delight", "essence", "flock", "gaze", "haste", "idea", "joint", "magnet", "neutral",
+        "outlook", "pulse", "quasar", "rush", "sprint", "truth", "uphold", "vortex", "warp", "zeal", "beacon",
+        "castle", "dash", "eclipse", "fume", "glow", "herd", "inkling", "jewel", "kingdom", "loft", "mystic",
+        "night", "plank", "quest", "ridge", "shine", "tangle", "uplift", "vista", "whistle", "yield", "zenith",
+        "bold", "crisp", "dusty", "freight", "glider", "hurdle", "kick", "lively", "mild", "noisy", "oath",
+        "pounce", "quiet", "riot", "sleek", "tough", "vault", "wrest", "yolk", "axis", "breeze", "crash",
+        "dive", "flare", "hush", "lure", "mist", "nudge", "quench", "reel", "silk", "uplift", "yodel"
     ];
-    // lol change this
-    let passage: Vec<&str> = words
-        .choose_multiple(&mut rand::thread_rng(), 1)
-        .cloned()
-        .collect();
+
+    let mut rng = rand::thread_rng();
+    let passage: Vec<&str> = words.choose_multiple(&mut rng, length).cloned().collect();
+
     passage.join(" ")
 }
 
@@ -52,5 +63,23 @@ pub fn key_to_char(key: Key) -> Option<char> {
         Key::Z => Some('z'),
         Key::Space => Some(' '),
         _ => None,
+    }
+}
+
+pub fn load_icon() -> IconData {
+    let (icon_rgba, icon_width, icon_height) = {
+        let icon = include_bytes!("../assets/icon_128.png");
+        let image = load_from_memory(icon)
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+
+    IconData {
+        rgba: icon_rgba,
+        width: icon_width,
+        height: icon_height,
     }
 }

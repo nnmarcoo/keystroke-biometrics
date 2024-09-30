@@ -15,13 +15,14 @@ pub struct Demo {
     pub previous_keys: HashSet<Key>,
     pub backspace_debounce: i32,
     pub username: String,
-    pub focused_username: bool,
+    pub word_count: usize,
+    pub use_database: bool,
 }
 
 impl Default for Demo {
     fn default() -> Self {
         Self {
-            passage: gen_passage(),
+            passage: gen_passage(25),
             input: String::new(),
             previous_length: 0,
             type_data: Data::new(),
@@ -29,7 +30,8 @@ impl Default for Demo {
             previous_keys: HashSet::new(),
             backspace_debounce: 0,
             username: String::new(),
-            focused_username: false,
+            word_count: 25,
+            use_database: false,
         }
     }
 }
@@ -43,8 +45,7 @@ impl Demo {
 impl App for Demo {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         CentralPanel::default().show(ctx, |ui| {
-            let y = render_typing(self, ui);
-            ui.add_space(y - 16.);
+            render_typing(self, ui);
             self.type_data.render_data(ui);
         });
     }

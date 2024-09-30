@@ -1,10 +1,79 @@
 use crate::{
     demo::Demo,
+    toggle_switch::toggle,
     util::{gen_passage, key_to_char},
 };
-use eframe::egui::{pos2, Align2, Button, Color32, FontId, Key, Stroke, TextEdit, Ui};
+use eframe::egui::{
+    pos2, vec2, Align2, Button, Color32, DragValue, FontId, Key, Separator, Stroke, TextEdit, Ui,
+    Widget,
+};
 
-pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
+pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
+    let mut is_username_focused = false;
+    let toggle_text = if app.use_database {
+        "Upload data to local database"
+    } else {
+        "Store data in-app (lost on exit)"
+    };
+
+    ui.horizontal(|ui| {
+        is_username_focused = ui
+            .add_sized(
+                [100., 16.],
+                TextEdit::singleline(&mut app.username).hint_text("Enter name"),
+            )
+            .on_hover_text("Who is typing")
+            .has_focus();
+
+        if ui
+            .add_enabled(
+                app.username.len() > 0,
+                Button::new("⏵").min_size(vec2(16., 16.)),
+            )
+            .on_hover_text("Submit data")
+            .clicked()
+        {
+            if app.username.len() > 0 {
+                todo!("type_data.send");
+            }
+        }
+
+        ui.add(toggle(&mut app.use_database))
+            .on_hover_text(toggle_text);
+
+        ui.add_space(ui.available_width() - 94.);
+
+        if ui
+            .add(DragValue::new(&mut app.word_count).range(1..=100))
+            .on_hover_text("Passage length")
+            .changed()
+        {
+            app.passage = gen_passage(app.word_count);
+            app.input.clear();
+        }
+
+        if ui
+            .add_enabled(true, Button::new("⟲").min_size(vec2(16., 16.)))
+            .on_hover_text("Generate new passage")
+            .clicked()
+        {
+            app.passage = gen_passage(app.word_count);
+            app.input.clear();
+        }
+
+        if ui
+            .add_enabled(true, Button::new("🗙").min_size(vec2(16., 16.)))
+            .on_hover_text("Reset data")
+            .clicked()
+        {
+            app.input.clear();
+            app.previous_length = 0;
+            app.type_data.reset();
+        }
+    });
+
+    Separator::default().ui(ui);
+
     let painter = ui.painter();
     let mut x = 0.;
     let mut y = 50.;
@@ -76,7 +145,7 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
     ui.add_space(4.);
 
     ui.input(|i| {
-        if app.focused_username {
+        if is_username_focused {
             return;
         }
 
@@ -125,28 +194,6 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) -> f32 {
         app.previous_keys = current_keys;
     });
 
-    ui.horizontal(|ui| {
-        app.focused_username = ui
-            .add_sized(
-                [100., 16.],
-                TextEdit::singleline(&mut app.username).hint_text("Enter name"),
-            )
-            .has_focus();
-
-        if ui
-            .add_sized([16., 16.], Button::new("⟲"))
-            .on_hover_text("Generate new passage")
-            .clicked()
-        {
-            app.passage = gen_passage();
-            app.input.clear();
-            reset(app);
-        }
-    });
-    y
-}
-
-fn reset(app: &mut Demo) {
-    app.previous_length = 0;
-    app.type_data.reset();
+    ui.add_space(y - 30.);
+    Separator::default().ui(ui);
 }

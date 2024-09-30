@@ -4,12 +4,14 @@ mod data;
 mod demo;
 mod typing;
 mod util;
+mod toggle_switch;
 
 use demo::Demo;
 use eframe::{
-    egui::{IconData, ViewportBuilder},
+    egui::ViewportBuilder,
     run_native, Error, NativeOptions, Result,
 };
+use util::load_icon;
 
 fn main() -> Result<(), Error> {
     let native_options = NativeOptions {
@@ -17,7 +19,7 @@ fn main() -> Result<(), Error> {
             .with_inner_size([800., 600.])
             .with_min_inner_size([400., 300.])
             .with_title("Keystroke Biometrics Demo")
-            .with_icon(IconData::default()),
+            .with_icon(load_icon()),
         ..Default::default()
     };
     run_native(

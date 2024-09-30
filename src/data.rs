@@ -16,7 +16,7 @@ impl Data {
         }
     }
 
-    pub fn record_char(&mut self, new_char: char) {
+    pub fn record_char(&mut self, new_char: char) { // CHANGE THIS
         if new_char != ' ' {
             let now = Instant::now();
             if let Some((previous_char, previous_time)) = self.last_char {
