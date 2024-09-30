@@ -5,6 +5,7 @@ mod demo;
 mod typing;
 mod util;
 mod toggle_switch;
+mod top_bar;
 
 use demo::Demo;
 use eframe::{
