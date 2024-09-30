@@ -2,7 +2,7 @@ use eframe::egui::{ScrollArea, Ui};
 use std::time::{Duration, Instant};
 
 pub struct Data {
-    pair_timings: Vec<(String, Duration)>, // Changed to Vec<(String, Duration)>
+    pair_timings: Vec<(String, Duration)>,
     last_char: Option<(char, Instant)>,
     corrections: i32,
 }
@@ -10,7 +10,7 @@ pub struct Data {
 impl Data {
     pub fn new() -> Self {
         Self {
-            pair_timings: Vec::new(), // Initialize Vec
+            pair_timings: Vec::new(),
             last_char: None,
             corrections: 0,
         }
