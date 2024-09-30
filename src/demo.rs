@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{data::Data, top_bar::render_top_bar, typing::render_typing, util::gen_passage};
 use eframe::{
-    egui::{vec2, CentralPanel, Context, Key, Separator, SidePanel, Widget},
+    egui::{CentralPanel, Context, Key, Separator, SidePanel, Widget},
     App, CreationContext, Frame,
 };
 
@@ -52,7 +52,7 @@ impl App for Demo {
 
             SidePanel::left("user_data")
             .resizable(true)
-            .width_range(200.0..=ui.available_width() - 200.0)
+            .width_range(ui.available_width() * 0.2..=ui.available_width() * 0.8)
             .default_width(ui.available_width() / 2.)
             .show_inside(ui, |ui| {
                 self.type_data.render_data(ui);
