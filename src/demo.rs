@@ -52,7 +52,6 @@ impl App for Demo {
 
             SidePanel::left("user_data")
             .resizable(true)
-            .width_range(ui.available_width() * 0.2..=ui.available_width() * 0.8)
             .default_width(ui.available_width() / 2.)
             .show_inside(ui, |ui| {
                 self.type_data.render_data(ui);
