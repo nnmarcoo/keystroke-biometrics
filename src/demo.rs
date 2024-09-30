@@ -54,9 +54,12 @@ impl App for Demo {
             .resizable(true)
             .default_width(ui.available_width() / 2.)
             .show_inside(ui, |ui| {
-                self.type_data.render_data(ui);
+                ui.label("TODO: session type data");
+                //self.type_data.render_data(ui);
                 ui.allocate_space(ui.available_size());
             });
+
+            ui.label("TODO: query type data");
             
         });
     }
