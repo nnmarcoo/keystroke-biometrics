@@ -1,4 +1,4 @@
-use crate::{demo::Demo, util::key_to_char};
+use crate::{demo::Demo, util::{gen_passage, key_to_char}};
 use eframe::egui::{pos2, Align2, Color32, FontId, Key, Stroke, Ui};
 
 pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
@@ -84,16 +84,9 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
             app.backspace_debounce += 1;
             if app.backspace_debounce == 4 {
                 app.backspace_debounce = 0;
-                if app.input.len() > 1 {
-                    let last_two = {
-                        let split = app.input.char_indices().nth_back(1).unwrap().0;
-                        &app.input[split..]
-                    };
-                    if !last_two.contains(' ') {
-                        app.type_data.pop();
-                    }
+                if app.input.len() > 0 {
+                    app.type_data.pop();
                 }
-                app.type_data.reset_last_char();
                 app.input.pop();
             }
         }
@@ -106,20 +99,23 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
                 }
             } else if *key == Key::Backspace {
                 app.backspace_debounce = 0;
-                if app.input.len() > 1 {
-                    let last_two = {
-                        let split = app.input.char_indices().nth_back(1).unwrap().0;
-                        &app.input[split..]
-                    };
-                    if !last_two.contains(' ') {
-                        app.type_data.pop();
-                    }
+                if app.input.len() > 0 {
+                    app.type_data.pop();
                 }
-                app.type_data.reset_last_char();
                 app.input.pop();
             }
         }
         app.previous_keys = current_keys;
     });
+
+    if app.input == app.passage {
+        app.passage = gen_passage(app.word_count);
+        app.input.clear();
+
+        if app.input.len() == 0 {
+            app.type_data.insert_break();
+        }
+    }
+    
     ui.add_space(y - 30.);
 }

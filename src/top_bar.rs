@@ -50,6 +50,7 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
             .on_hover_text("Generate new passage")
             .clicked()
         {
+            app.type_data.insert_break();
             app.passage = gen_passage(app.word_count);
             app.input.clear();
         }

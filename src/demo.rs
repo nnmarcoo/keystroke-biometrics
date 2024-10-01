@@ -55,7 +55,7 @@ impl App for Demo {
             .default_width(ui.available_width() / 2.)
             .show_inside(ui, |ui| {
                 ui.label("TODO: session type data");
-                //self.type_data.render_data(ui);
+                self.type_data.render_data(ui);
                 ui.allocate_space(ui.available_size());
             });
 
