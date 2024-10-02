@@ -2,6 +2,16 @@ use crate::{demo::Demo, util::{gen_passage, key_to_char}};
 use eframe::egui::{pos2, Align2, Color32, FontId, Key, Stroke, Ui};
 
 pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
+
+    if app.input == app.passage {
+        app.passage = gen_passage(app.word_count);
+        app.input.clear();
+
+        if app.input.len() == 0 {
+            app.type_data.insert_break();
+        }
+    }
+
     let painter = ui.painter();
     let mut x = 0.;
     let mut y = 50.;
@@ -107,15 +117,6 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
         }
         app.previous_keys = current_keys;
     });
-
-    if app.input == app.passage {
-        app.passage = gen_passage(app.word_count);
-        app.input.clear();
-
-        if app.input.len() == 0 {
-            app.type_data.insert_break();
-        }
-    }
     
     ui.add_space(y - 30.);
 }

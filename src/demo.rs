@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{data::Data, top_bar::render_top_bar, typing::render_typing, util::gen_passage};
 use eframe::{
-    egui::{CentralPanel, Context, Key, Separator, SidePanel, Widget},
+    egui::{vec2, CentralPanel, Context, Key, Separator, SidePanel, Widget},
     App, CreationContext, Frame,
 };
 
@@ -50,16 +50,8 @@ impl App for Demo {
             render_typing(self, ui);
             Separator::default().ui(ui);
 
-            SidePanel::left("user_data")
-            .resizable(true)
-            .min_width(10.)
-            .default_width(ui.available_width() / 2.)
-            .show_inside(ui, |ui| {
-                
-                self.type_data.render_data(ui);
-
-                ui.allocate_space(ui.available_size());
-            }); 
+            
+           
         });
     }
 }
