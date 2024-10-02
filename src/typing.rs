@@ -54,9 +54,7 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
 
         if i == app.input.len() {
             draw_cursor(painter, pos, constants::SOFT_YELLOW);
-        }
-
-        if i < input_chars.len() {
+        } else if i < input_chars.len() {
             if input_chars[i] != passage_chars[i] {
                 draw_cursor(painter, pos, constants::SOFT_RED);
             }
