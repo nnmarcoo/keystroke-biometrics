@@ -57,7 +57,7 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
 
         if ui
             .add_enabled(true, Button::new("🗙").min_size(vec2(16., 16.)))
-            .on_hover_text("Reset data")
+            .on_hover_text("Clear data")
             .clicked()
         {
             app.input.clear();
