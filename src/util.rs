@@ -1,6 +1,8 @@
-use eframe::egui::{IconData, Key};
+use eframe::egui::{pos2, Color32, IconData, Key, Painter, Pos2, Stroke};
 use image::load_from_memory;
 use rand::seq::SliceRandom;
+
+use crate::constants;
 
 pub fn gen_passage(length: usize) -> String {
     let words = vec![
@@ -82,4 +84,14 @@ pub fn load_icon() -> IconData {
         width: icon_width,
         height: icon_height,
     }
+}
+
+pub fn draw_cursor(painter: &Painter, pos: Pos2, color: Color32) {
+    painter.line_segment(
+        [
+            pos2(pos.x, pos.y + constants::CHAR_SPACING),
+            pos2(pos.x + 10., pos.y + constants::CHAR_SPACING),
+        ],
+        Stroke::new(2., color),
+    );
 }

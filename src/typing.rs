@@ -1,8 +1,9 @@
-use crate::{demo::Demo, util::{gen_passage, key_to_char}};
-use eframe::egui::{pos2, Align2, Color32, FontId, Key, Stroke, Ui};
+use crate::{
+    constants, demo::Demo, util::{draw_cursor, gen_passage, key_to_char}
+};
+use eframe::egui::{pos2, Align2, Color32, Key, Ui};
 
 pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
-
     if app.input == app.passage {
         app.passage = gen_passage(app.word_count);
         app.input.clear();
@@ -13,71 +14,55 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
     }
 
     let painter = ui.painter();
-    let mut x = 0.;
-    let mut y = 50.;
-
-    let font_id = FontId::monospace(16.);
-    let char_spacing = 10.;
+    let mut pos = pos2(0., 50.);
+    
     let available_width = ui.available_width();
 
-    let mut input_chars = app.input.chars().peekable();
-    let mut input_index = 0;
-
-    let soft_green = Color32::from_rgb(119, 221, 119); // #77dd77
-    let soft_red = Color32::from_rgb(255, 105, 97); // #ff6961
+    let input_chars: Vec<char> = app.input.chars().collect();
+    let passage_chars: Vec<char> = app.passage.chars().collect();
+    let mut i = 0;
 
     for word in app.passage.split_whitespace() {
-        let word_width = word.chars().count() as f32 * char_spacing;
+        let word_width = word.chars().count() as f32 * constants::CHAR_SPACING;
 
-        if x + word_width > available_width {
-            x = 0.;
-            y += 25.;
+        if pos.x + word_width > available_width {
+            pos.x = 0.;
+            pos.y += 25.;
         }
 
         for c in word.chars() {
-            let typed_char = input_chars.peek();
+            pos.x += constants::CHAR_SPACING;
 
-            let color = if let Some(&typed) = typed_char {
-                input_index += 1;
-                if typed == c {
-                    soft_green
+            let color = if i < input_chars.len() {
+                if input_chars[i] == c {
+                    constants::SOFT_GREEN
                 } else {
-                    soft_red
+                    constants::SOFT_RED
                 }
             } else {
                 Color32::GRAY
             };
 
-            painter.text(
-                pos2(x + 10., y),
-                Align2::LEFT_CENTER,
-                c,
-                font_id.clone(),
-                color,
-            );
-            x += char_spacing;
-            input_chars.next();
+            if i == app.input.len() {
+                draw_cursor(painter, pos, constants::SOFT_YELLOW);
+            }
+
+            painter.text(pos, Align2::LEFT_CENTER, c, constants::FONT_ID.clone(), color);
+            i += 1;
+        }
+        pos.x += constants::CHAR_SPACING;
+
+        if i == app.input.len() {
+            draw_cursor(painter, pos, constants::SOFT_YELLOW);
         }
 
-        if input_index < app.input.len() {
-            if let Some(&next_input_char) = input_chars.peek() {
-                let color = if next_input_char == ' ' {
-                    soft_green
-                } else {
-                    soft_red
-                };
-                painter.text(
-                    pos2(x + 10., y),
-                    Align2::LEFT_CENTER,
-                    ' ',
-                    font_id.clone(),
-                    color,
-                );
-                input_chars.next();
-                input_index += 1;
+        if i < input_chars.len() {
+            if input_chars[i] != passage_chars[i] {
+                draw_cursor(painter, pos, constants::SOFT_RED);
             }
         }
-        x += char_spacing;
+
+        i += 1;
     }
 
     ui.add_space(4.);
@@ -104,8 +89,10 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
         for key in new_keys {
             if *key != Key::Backspace {
                 if let Some(ch) = key_to_char(*key) {
-                    app.type_data.record_char(ch);
-                    app.input.push(ch);
+                    if app.input.len() < app.passage.len() {
+                        app.type_data.record_char(ch);
+                        app.input.push(ch);
+                    }
                 }
             } else if *key == Key::Backspace {
                 app.backspace_debounce = 0;
@@ -117,6 +104,6 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
         }
         app.previous_keys = current_keys;
     });
-    
-    ui.add_space(y - 30.);
+
+    ui.add_space(pos.y - 30.);
 }
