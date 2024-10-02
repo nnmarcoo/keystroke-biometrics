@@ -50,8 +50,7 @@ impl App for Demo {
             render_typing(self, ui);
             Separator::default().ui(ui);
 
-            
-           
+            self.type_data.render_data(ui);
         });
     }
 }

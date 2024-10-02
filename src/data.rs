@@ -1,5 +1,8 @@
-use eframe::egui::{ScrollArea, Ui};
-use std::time::{Duration, Instant};
+use eframe::egui::{Grid, ScrollArea, Ui};
+use std::{
+    collections::HashMap,
+    time::{Duration, Instant},
+};
 
 pub struct Data {
     history: Vec<(char, Instant)>,
@@ -41,19 +44,51 @@ impl Data {
     }
 
     pub fn render_data(&mut self, ui: &mut Ui) {
-        let chars: f32 = self.history.len() as f32 - self.breaks as f32;
-        let foc: f32 = if chars != 0. {
-            self.corrections as f32 / chars
-        } else {
-            0.
-        };
+        let mut average_pairs = self.calculate_pairs().into_iter().collect::<Vec<_>>();
+        average_pairs.sort_by(|a, b| a.0.cmp(&b.0));
 
-        ui.label(format!("FOC: {}", foc));
+        ScrollArea::both().show(ui, |ui| {
+            Grid::new("key_pairs_grid").striped(true).show(ui, |ui| {
+                ui.label("Pair");
+                ui.label("Duration (ms)");
+                ui.end_row();
 
-        let res = ScrollArea::vertical().stick_to_bottom(true).show(ui, |ui| {
-            for i in self.history.iter() {
-                ui.label(format!("{}:{:?}", i.0, i.1));
-            }
+                for ((key1, key2), duration) in average_pairs.iter() {
+                    let duration_ms = duration.as_secs_f64() * 1000.0;
+                    ui.label(format!("{} ➡ {}", key1, key2));
+                    ui.label(format!("{:.4}", duration_ms));
+                    ui.end_row();
+                }
+            });
         });
+    }
+
+    fn calculate_pairs(&mut self) -> HashMap<(char, char), Duration> {
+        let mut pair_durations: HashMap<(char, char), (Duration, usize)> = HashMap::new();
+
+        for window in self.history.windows(2) {
+            let (key1, time1) = window[0];
+            let (key2, time2) = window[1];
+
+            if key1 == '_' || key1 == ' ' || key2 == '_' || key2 == ' ' {
+                continue;
+            }
+
+            let duration = time2.duration_since(time1);
+
+            let entry = pair_durations
+                .entry((key1, key2))
+                .or_insert((Duration::new(0, 0), 0));
+            entry.0 += duration;
+            entry.1 += 1;
+        }
+
+        let mut average_durations: HashMap<(char, char), Duration> = HashMap::new();
+
+        for (pair, (total_duration, count)) in pair_durations {
+            let average_duration = total_duration / count as u32;
+            average_durations.insert(pair, average_duration);
+        }
+        average_durations
     }
 }
