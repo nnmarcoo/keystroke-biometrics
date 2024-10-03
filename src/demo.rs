@@ -7,7 +7,7 @@ use eframe::{
 };
 
 pub struct Demo {
-    pub passage: String,
+    pub passage: String, // Change to vec and store chars and wrods separately ?
     pub input: String,
     pub type_data: Data,
 
