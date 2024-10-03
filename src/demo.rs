@@ -52,7 +52,14 @@ impl App for Demo {
             render_typing(self, ui);
             Separator::default().ui(ui);
 
-            render_data(self, ui);
+
+            ui.horizontal_top(|ui| {
+                render_data(self, ui);
+                if self.type_data.is_populated() {
+                    Separator::default().vertical().ui(ui);
+                }
+            });
+            
         });
     }
 }

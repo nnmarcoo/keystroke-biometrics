@@ -30,6 +30,10 @@ impl Data {
         self.corrections += 1;
     }
 
+    pub fn is_populated(&mut self) -> bool {
+        return self.history.len() > 1;
+    }
+
     pub fn insert_break(&mut self) {
         if self.history.len() > 0 {
             if self.history.last().unwrap().0 != '_' {
