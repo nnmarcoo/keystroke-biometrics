@@ -4,6 +4,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+use crate::demo::Demo;
+
 pub struct Data {
     history: Vec<(char, Instant)>,
     breaks: i32,
@@ -43,27 +45,7 @@ impl Data {
         self.corrections = 0;
     }
 
-    pub fn render_data(&mut self, ui: &mut Ui) {
-        let mut average_pairs = self.calculate_pairs().into_iter().collect::<Vec<_>>();
-        average_pairs.sort_by(|a, b| a.0.cmp(&b.0));
-
-        ScrollArea::both().show(ui, |ui| {
-            Grid::new("key_pairs_grid").striped(true).show(ui, |ui| {
-                ui.label("Pair");
-                ui.label("Duration (ms)");
-                ui.end_row();
-
-                for ((key1, key2), duration) in average_pairs.iter() {
-                    let duration_ms = duration.as_secs_f64() * 1000.0;
-                    ui.label(format!("{} ➡ {}", key1, key2));
-                    ui.label(format!("{:.4}", duration_ms));
-                    ui.end_row();
-                }
-            });
-        });
-    }
-
-    fn calculate_pairs(&mut self) -> HashMap<(char, char), Duration> {
+    pub fn calculate_pairs(&mut self) -> HashMap<(char, char), Duration> {
         let mut pair_durations: HashMap<(char, char), (Duration, usize)> = HashMap::new();
 
         for window in self.history.windows(2) {
@@ -91,4 +73,65 @@ impl Data {
         }
         average_durations
     }
+}
+
+pub fn render_data(app: &mut Demo, ui: &mut Ui) {
+    let mut average_pairs = app.type_data.calculate_pairs().into_iter().collect::<Vec<_>>();
+
+    match app.user_data_sort {
+        0 => {
+            average_pairs.sort_by(|a, b| a.1.cmp(&b.1));
+        }
+        1 => {
+            average_pairs.sort_by(|a, b| b.1.cmp(&a.1));
+        }
+        2 => {
+            average_pairs.sort_by(|a, b| a.0.cmp(&b.0));
+        }
+        3 => {
+            average_pairs.sort_by(|a, b| b.0.cmp(&a.0));
+        }
+        4 => {
+            average_pairs.sort_by(|a, b| a.0.1.cmp(&b.0.1));
+        }
+        5 => {
+            average_pairs.sort_by(|a, b| b.0.1.cmp(&a.0.1));
+        }
+        _ => {}
+    }
+
+    ScrollArea::both().show(ui, |ui| {
+        Grid::new("key_pairs_grid").striped(true).show(ui, |ui| {
+            for ((key1, key2), duration) in &average_pairs {
+                let duration_ms = duration.as_secs_f64() * 1000.0;
+                let k1 = key1.to_ascii_uppercase();
+                let k2 = key2.to_ascii_uppercase();
+
+                let key_pair_display = format!("{} ➡ {}", k1, k2);
+                let duration_display = format!("{:.4}", duration_ms);
+                let hover_text = format!("{}➡{} key pair", k1, k2);
+                let duration_hover = format!("{:.0}ms between the {}➡{} key pair", duration_ms, k1, k2);
+
+                let pair_res = ui.label(&key_pair_display).on_hover_text(&hover_text);
+                let time_res = ui.label(&duration_display).on_hover_text(&duration_hover);
+                ui.end_row();
+
+                if time_res.clicked() {
+                    if app.user_data_sort != 1{
+                        app.user_data_sort = 1;
+                    } else {
+                        app.user_data_sort = 0;
+                    }
+                } else if pair_res.clicked() {
+                    if app.user_data_sort < 2 {
+                        app.user_data_sort = 2;
+                    } else if app.user_data_sort < 5 {
+                        app.user_data_sort += 1;
+                    } else {
+                        app.user_data_sort = 2;
+                    }
+                }
+            }
+        });
+    });
 }

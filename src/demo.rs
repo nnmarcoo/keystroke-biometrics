@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use crate::{data::Data, top_bar::render_top_bar, typing::render_typing, util::gen_passage};
+use crate::{data::{render_data, Data}, top_bar::render_top_bar, typing::render_typing, util::gen_passage};
 use eframe::{
-    egui::{vec2, CentralPanel, Context, Key, Separator, SidePanel, Widget},
+    egui::{CentralPanel, Context, Key, Separator, Widget},
     App, CreationContext, Frame,
 };
 
@@ -17,6 +17,7 @@ pub struct Demo {
     pub word_count: usize,
     pub use_database: bool,
     pub is_distracted: bool,
+    pub user_data_sort: i32,
 }
 
 impl Default for Demo {
@@ -32,6 +33,7 @@ impl Default for Demo {
             word_count: 25,
             use_database: false,
             is_distracted: true,
+            user_data_sort: 0,
         }
     }
 }
@@ -50,7 +52,7 @@ impl App for Demo {
             render_typing(self, ui);
             Separator::default().ui(ui);
 
-            self.type_data.render_data(ui);
+            render_data(self, ui);
         });
     }
 }
