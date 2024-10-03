@@ -52,7 +52,6 @@ impl App for Demo {
             render_typing(self, ui);
             Separator::default().ui(ui);
 
-
             ui.horizontal_top(|ui| {
                 render_data(self, ui);
                 if self.type_data.is_populated() {
