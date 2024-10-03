@@ -1,10 +1,10 @@
-use eframe::egui::{Grid, ScrollArea, Ui};
+use eframe::egui::{Grid, RichText, ScrollArea, Ui};
 use std::{
     collections::HashMap,
     time::{Duration, Instant},
 };
 
-use crate::demo::Demo;
+use crate::{constants::FONT_ID_12, demo::Demo};
 
 pub struct Data {
     history: Vec<(char, Instant)>,
@@ -76,7 +76,11 @@ impl Data {
 }
 
 pub fn render_data(app: &mut Demo, ui: &mut Ui) {
-    let mut average_pairs = app.type_data.calculate_pairs().into_iter().collect::<Vec<_>>();
+    let mut average_pairs = app
+        .type_data
+        .calculate_pairs()
+        .into_iter()
+        .collect::<Vec<_>>();
 
     match app.user_data_sort {
         0 => {
@@ -101,13 +105,18 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                 let k1 = key1.to_ascii_uppercase();
                 let k2 = key2.to_ascii_uppercase();
 
-                let key_pair_display = format!("{} ➡ {}", k1, k2);
+                let key_pair_display = format!("{} ➡ {} ", k1, k2);
                 let duration_display = format!("{:.4}", duration_ms);
                 let hover_text = format!("{}➡{} key pair", k1, k2);
-                let duration_hover = format!("{:.0}ms between the {}➡{} key pair", duration_ms, k1, k2);
+                let duration_hover =
+                    format!("{:.0}ms between the {}➡{} key pair", duration_ms, k1, k2);
 
-                let pair_res = ui.label(&key_pair_display).on_hover_text(&hover_text);
-                let time_res = ui.label(&duration_display).on_hover_text(&duration_hover);
+                let pair_res = ui
+                    .label(RichText::new(&key_pair_display).font(FONT_ID_12))
+                    .on_hover_text(&hover_text);
+                let time_res = ui
+                    .label(RichText::new(&duration_display).font(FONT_ID_12))
+                    .on_hover_text(&duration_hover);
                 ui.end_row();
 
                 if pair_res.clicked() {

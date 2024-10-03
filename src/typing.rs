@@ -47,7 +47,7 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
                 draw_cursor(painter, pos, constants::SOFT_YELLOW);
             }
 
-            painter.text(pos, Align2::LEFT_CENTER, c, constants::FONT_ID.clone(), color);
+            painter.text(pos, Align2::LEFT_CENTER, c, constants::FONT_ID_16.clone(), color);
             i += 1;
         }
         pos.x += constants::CHAR_SPACING;
