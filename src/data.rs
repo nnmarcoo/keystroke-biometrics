@@ -80,22 +80,16 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
 
     match app.user_data_sort {
         0 => {
-            average_pairs.sort_by(|a, b| a.1.cmp(&b.1));
-        }
-        1 => {
-            average_pairs.sort_by(|a, b| b.1.cmp(&a.1));
-        }
-        2 => {
             average_pairs.sort_by(|a, b| a.0.cmp(&b.0));
         }
-        3 => {
+        1 => {
             average_pairs.sort_by(|a, b| b.0.cmp(&a.0));
         }
-        4 => {
-            average_pairs.sort_by(|a, b| a.0.1.cmp(&b.0.1));
+        2 => {
+            average_pairs.sort_by(|a, b| a.1.cmp(&b.1));
         }
-        5 => {
-            average_pairs.sort_by(|a, b| b.0.1.cmp(&a.0.1));
+        3 => {
+            average_pairs.sort_by(|a, b| b.1.cmp(&a.1));
         }
         _ => {}
     }
@@ -116,21 +110,20 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                 let time_res = ui.label(&duration_display).on_hover_text(&duration_hover);
                 ui.end_row();
 
-                if time_res.clicked() {
-                    if app.user_data_sort != 1{
-                        app.user_data_sort = 1;
-                    } else {
+                if pair_res.clicked() {
+                    if app.user_data_sort != 0 {
                         app.user_data_sort = 0;
-                    }
-                } else if pair_res.clicked() {
-                    if app.user_data_sort < 2 {
-                        app.user_data_sort = 2;
-                    } else if app.user_data_sort < 5 {
-                        app.user_data_sort += 1;
                     } else {
+                        app.user_data_sort = 1;
+                    }
+                } else if time_res.clicked() {
+                    if app.user_data_sort != 2 {
                         app.user_data_sort = 2;
+                    } else {
+                        app.user_data_sort = 3;
                     }
                 }
+                println!("{}", app.user_data_sort);
             }
         });
     });
