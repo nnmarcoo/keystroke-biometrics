@@ -123,7 +123,6 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                         app.user_data_sort = 3;
                     }
                 }
-                println!("{}", app.user_data_sort);
             }
         });
     });
