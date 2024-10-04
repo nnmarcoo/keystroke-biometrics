@@ -60,7 +60,6 @@ impl Data {
     }
 
     pub fn update_pairs(&mut self) {
-        println!("HI");
         let mut pair_durations = HashMap::new();
 
         for window in self.history.windows(2) {
