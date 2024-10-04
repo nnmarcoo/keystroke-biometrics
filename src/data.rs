@@ -31,7 +31,7 @@ impl Data {
     }
 
     pub fn is_populated(&mut self) -> bool {
-        return self.history.len() > 1;
+        return self.history.iter().filter(|&&c| c.0.is_alphabetic()).count() > 1;
     }
 
     pub fn insert_break(&mut self) {
@@ -102,7 +102,7 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
         _ => {}
     }
 
-    ScrollArea::both().show(ui, |ui| {
+    ScrollArea::vertical().show(ui, |ui| {
         Grid::new("key_pairs_grid").striped(true).show(ui, |ui| {
             for ((key1, key2), duration) in &average_pairs {
                 let duration_ms = duration.as_secs_f64() * 1000.0;

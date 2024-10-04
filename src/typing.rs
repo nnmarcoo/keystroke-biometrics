@@ -81,9 +81,9 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
         let current_keys = i.keys_down.clone();
         let new_keys = current_keys.difference(&app.previous_keys);
 
-        if current_keys.contains(&Key::Backspace) {
+        if current_keys.contains(&Key::Backspace) && current_keys.len() == 1 {
             app.backspace_debounce += 1;
-            if app.backspace_debounce == 4 {
+            if app.backspace_debounce > 4 {
                 app.backspace_debounce = 0;
                 if app.input.len() > 0 {
                     app.type_data.pop();
