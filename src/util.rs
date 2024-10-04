@@ -94,7 +94,7 @@ pub fn draw_cursor(painter: &Painter, pos: Pos2, color: Color32) {
     painter.line_segment(
         [
             pos2(pos.x, pos.y + constants::CHAR_SPACING),
-            pos2(pos.x + 10., pos.y + constants::CHAR_SPACING),
+            pos2(pos.x + constants::CHAR_SPACING, pos.y + constants::CHAR_SPACING),
         ],
         Stroke::new(2., color),
     );
