@@ -37,7 +37,7 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
         ui.add_space(ui.available_width() - 94.);
 
         if ui
-            .add(DragValue::new(&mut app.word_count).range(1..=100))
+            .add(DragValue::new(&mut app.word_count).range(1..=200))
             .on_hover_text("Passage length")
             .changed()
         {
