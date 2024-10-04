@@ -31,13 +31,13 @@ impl Data {
 
     pub fn record_char(&mut self, key: char) {
         self.history.push((key, Instant::now()));
-        self.update_pairs();
+        self.update_data();
     }
 
     pub fn pop(&mut self) {
         self.history.pop();
         self.corrections += 1;
-        self.update_pairs();
+        self.update_data();
     }
 
     pub fn is_populated(&mut self) -> bool {
@@ -62,10 +62,10 @@ impl Data {
         self.history.clear();
         self.breaks = 0;
         self.corrections = 0;
-        self.update_pairs();
+        self.update_data();
     }
 
-    pub fn update_pairs(&self) {
+    pub fn update_data(&self) {
         let pairs_clone = Arc::clone(&self.pairs);
         let history_clone = self.history.clone();
     
@@ -75,29 +75,47 @@ impl Data {
     
         thread::spawn(move || {
             let mut pair_durations = HashMap::new();
-            let mut total_active_time = Duration::new(0, 0);
+            let mut total_segment_time = Duration::new(0, 0);
+            let mut segment_char_count = 0;
+    
+            let mut segment_start: Option<Instant> = None;
     
             for window in history_clone.windows(2) {
                 let (key1, time1) = window[0];
                 let (key2, time2) = window[1];
     
-                if key1 == '_' || key1 == ' ' || key2 == '_' || key2 == ' ' {
-                    continue;
+                if key1 == '_' {
+                    segment_start = Some(time2);
+                } else if key2 == '_' {
+                    if let Some(start_time) = segment_start {
+                        total_segment_time += time2.duration_since(start_time);
+                        segment_start = None;
+                    }
+                } else if segment_start.is_none() {
+                    segment_start = Some(time1);
+                }
+
+                if key1 != '_' && key2 != ' ' && key1 != ' ' && key2 != '_' {
+                    let duration = time2.duration_since(time1);
+                    let entry = pair_durations
+                        .entry((key1, key2))
+                        .or_insert((Duration::new(0, 0), 0));
+                    entry.0 += duration;
+                    entry.1 += 1;
                 }
     
-                let duration = time2.duration_since(time1);
-    
-                let entry = pair_durations
-                    .entry((key1, key2))
-                    .or_insert((Duration::new(0, 0), 0));
-                entry.0 += duration;
-                entry.1 += 1;
-    
-                total_active_time += duration;
+                if key1.is_alphabetic() {
+                    segment_char_count += 1;
+                }
+            }
+
+            if let Some(start_time) = segment_start {
+                if let Some((_, last_time)) = history_clone.last() {
+                    total_segment_time += last_time.duration_since(start_time);
+                }
             }
     
             let mut average_durations = HashMap::new();
-    
             for (pair, (total_duration, count)) in pair_durations {
                 let average_duration = total_duration / count as u32;
                 average_durations.insert(pair, average_duration);
@@ -105,34 +123,25 @@ impl Data {
     
             let mut pairs_lock = pairs_clone.lock().unwrap_or_else(|e| e.into_inner());
             *pairs_lock = average_durations;
-           
-            let total_active_minutes = total_active_time.as_secs_f32() / 60.0;
-            let char_count = history_clone
-                .iter()
-                .filter(|&&(c, _)| c.is_alphabetic())
-                .count();
-            let wpm = if total_active_minutes > 0.0 {
-                (char_count as f32 / 5.0) / total_active_minutes
-            } else {
-                0.0
-            };
-
-            let mut cpe = if char_count > 0 {
-                corrections as f32 / char_count as f32
-            } else {
-                0.0
-            };
-            cpe *= 100.0;
-
-            let mut wpm_lock = wpm_clone.lock().unwrap_or_else(|e| e.into_inner());
-            *wpm_lock = wpm;
-
-            let mut foc_lock = cpe_clone.lock().unwrap_or_else(|e| e.into_inner());
-            *foc_lock = cpe;
-           
+    
+            if total_segment_time.as_secs_f32() > 0.0 && segment_char_count > 0 {
+                let total_time_minutes = total_segment_time.as_secs_f32() / 60.0;
+                let wpm = (segment_char_count as f32 / 5.0) / total_time_minutes;
+    
+                let cpe = if segment_char_count > 0 {
+                    corrections as f32 / segment_char_count as f32 * 100.0
+                } else {
+                    0.0
+                };
+    
+                let mut wpm_lock = wpm_clone.lock().unwrap_or_else(|e| e.into_inner());
+                *wpm_lock = wpm;
+    
+                let mut foc_lock = cpe_clone.lock().unwrap_or_else(|e| e.into_inner());
+                *foc_lock = cpe;
+            }
         });
     }
-    
 
     pub fn get_pairs(&self) -> Arc<Mutex<HashMap<(char, char), Duration>>> {
         Arc::clone(&self.pairs)
