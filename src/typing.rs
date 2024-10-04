@@ -21,7 +21,7 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
     let available_width = ui.available_width();
 
     let input_chars: Vec<char> = app.input.chars().collect();
-    let passage_chars: Vec<char> = app.passage.chars().collect(); // should I jsut store vecs instead?
+    let passage_chars: Vec<char> = app.passage.chars().collect();
     let mut i = 0;
 
     for word in app.passage.split_whitespace() {

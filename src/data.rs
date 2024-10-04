@@ -1,4 +1,5 @@
 use eframe::egui::{Grid, RichText, ScrollArea, Ui};
+use std::sync::{Arc, Mutex};
 use std::{
     collections::HashMap,
     time::{Duration, Instant},
@@ -10,6 +11,7 @@ pub struct Data {
     history: Vec<(char, Instant)>,
     breaks: i32,
     corrections: i32,
+    pairs: Arc<Mutex<HashMap<(char, char), Duration>>>,
 }
 
 impl Data {
@@ -18,20 +20,28 @@ impl Data {
             history: Vec::new(),
             breaks: 0,
             corrections: 0,
+            pairs: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
     pub fn record_char(&mut self, key: char) {
         self.history.push((key, Instant::now()));
+        self.update_pairs();
     }
 
     pub fn pop(&mut self) {
         self.history.pop();
         self.corrections += 1;
+        self.update_pairs();
     }
 
     pub fn is_populated(&mut self) -> bool {
-        return self.history.iter().filter(|&&c| c.0.is_alphabetic()).count() > 1;
+        return self
+            .history
+            .iter()
+            .filter(|&&c| c.0.is_alphabetic())
+            .count()
+            > 1;
     }
 
     pub fn insert_break(&mut self) {
@@ -49,8 +59,9 @@ impl Data {
         self.corrections = 0;
     }
 
-    pub fn calculate_pairs(&mut self) -> HashMap<(char, char), Duration> {
-        let mut pair_durations: HashMap<(char, char), (Duration, usize)> = HashMap::new();
+    pub fn update_pairs(&mut self) {
+        println!("HI");
+        let mut pair_durations = HashMap::new();
 
         for window in self.history.windows(2) {
             let (key1, time1) = window[0];
@@ -69,42 +80,47 @@ impl Data {
             entry.1 += 1;
         }
 
-        let mut average_durations: HashMap<(char, char), Duration> = HashMap::new();
+        let mut average_durations = HashMap::new();
 
         for (pair, (total_duration, count)) in pair_durations {
             let average_duration = total_duration / count as u32;
             average_durations.insert(pair, average_duration);
         }
-        average_durations
+
+        let mut pairs_lock = self.pairs.lock().unwrap();
+        *pairs_lock = average_durations;
+    }
+
+    pub fn get_pairs(&self) -> Arc<Mutex<HashMap<(char, char), Duration>>> {
+        Arc::clone(&self.pairs)
     }
 }
 
 pub fn render_data(app: &mut Demo, ui: &mut Ui) {
-    let mut average_pairs = app
-        .type_data
-        .calculate_pairs()
-        .into_iter()
-        .collect::<Vec<_>>();
+    let pairs_lock = app.type_data.get_pairs();
+    let average_pairs = pairs_lock.lock().unwrap().clone();
+
+    let mut sorted_pairs = average_pairs.into_iter().collect::<Vec<_>>();
 
     match app.user_data_sort {
         0 => {
-            average_pairs.sort_by(|a, b| a.0.cmp(&b.0));
+            sorted_pairs.sort_by(|a, b| a.0.cmp(&b.0));
         }
         1 => {
-            average_pairs.sort_by(|a, b| b.0.cmp(&a.0));
+            sorted_pairs.sort_by(|a, b| b.0.cmp(&a.0));
         }
         2 => {
-            average_pairs.sort_by(|a, b| a.1.cmp(&b.1));
+            sorted_pairs.sort_by(|a, b| a.1.cmp(&b.1));
         }
         3 => {
-            average_pairs.sort_by(|a, b| b.1.cmp(&a.1));
+            sorted_pairs.sort_by(|a, b| b.1.cmp(&a.1));
         }
         _ => {}
     }
 
     ScrollArea::vertical().show(ui, |ui| {
         Grid::new("key_pairs_grid").striped(true).show(ui, |ui| {
-            for ((key1, key2), duration) in &average_pairs {
+            for ((key1, key2), duration) in &sorted_pairs {
                 let duration_ms = duration.as_secs_f64() * 1000.0;
                 let k1 = key1.to_ascii_uppercase();
                 let k2 = key2.to_ascii_uppercase();
