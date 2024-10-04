@@ -1,8 +1,13 @@
 use std::collections::HashSet;
 
-use crate::{data::{render_data, Data}, top_bar::render_top_bar, typing::render_typing, util::gen_passage};
+use crate::{
+    data::{render_data, Data},
+    top_bar::render_top_bar,
+    typing::render_typing,
+    util::gen_passage,
+};
 use eframe::{
-    egui::{CentralPanel, Context, Key, Separator, Visuals, Widget},
+    egui::{CentralPanel, Context, Key, Separator, Widget},
     App, CreationContext, Frame,
 };
 
@@ -46,7 +51,6 @@ impl Demo {
 
 impl App for Demo {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-        ctx.set_visuals(Visuals::dark());
         CentralPanel::default().show(ctx, |ui| {
             render_top_bar(self, ui);
             Separator::default().ui(ui);
@@ -59,7 +63,6 @@ impl App for Demo {
                     Separator::default().vertical().ui(ui);
                 }
             });
-            
         });
     }
 }

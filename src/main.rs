@@ -1,17 +1,17 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod constants;
 mod data;
 mod demo;
-mod typing;
-mod util;
 mod toggle_switch;
 mod top_bar;
-mod constants;
+mod typing;
+mod util;
 
 use demo::Demo;
 use eframe::{
-    egui::ViewportBuilder,
-    run_native, Error, NativeOptions, Result,
+    egui::{Style, ViewportBuilder, Visuals},
+    Error, NativeOptions, Result,
 };
 use util::load_icon;
 
@@ -24,9 +24,16 @@ fn main() -> Result<(), Error> {
             .with_icon(load_icon()),
         ..Default::default()
     };
-    run_native(
-        "Keystroke Biometrics Demo",
+    eframe::run_native(
+        "test",
         native_options,
-        Box::new(|cc| Ok(Box::new(Demo::new(cc)))),
+        Box::new(|cc| {
+            let style = Style {
+                visuals: Visuals::dark(),
+                ..Style::default()
+            };
+            cc.egui_ctx.set_style(style);
+            Ok(Box::new(Demo::new(cc)))
+        }),
     )
 }

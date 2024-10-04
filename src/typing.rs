@@ -1,5 +1,7 @@
 use crate::{
-    constants, demo::Demo, util::{draw_cursor, gen_passage, key_to_char}
+    constants,
+    demo::Demo,
+    util::{draw_cursor, gen_passage, key_to_char},
 };
 use eframe::egui::{pos2, Align2, Color32, Key, Ui};
 
@@ -15,7 +17,7 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
 
     let painter = ui.painter();
     let mut pos = pos2(0., 50.);
-    
+
     let available_width = ui.available_width();
 
     let input_chars: Vec<char> = app.input.chars().collect();
@@ -47,7 +49,13 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
                 draw_cursor(painter, pos, constants::SOFT_YELLOW);
             }
 
-            painter.text(pos, Align2::LEFT_CENTER, c, constants::FONT_ID_16.clone(), color);
+            painter.text(
+                pos,
+                Align2::LEFT_CENTER,
+                c,
+                constants::FONT_ID_16.clone(),
+                color,
+            );
             i += 1;
         }
         pos.x += constants::CHAR_SPACING;
