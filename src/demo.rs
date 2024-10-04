@@ -48,6 +48,8 @@ impl Default for Demo {
 impl Demo {
     pub fn new(cc: &CreationContext<'_>) -> Self {
         cc.egui_ctx.send_viewport_cmd(ViewportCommand::SetTheme(SystemTheme::Dark));
+        cc.egui_ctx.send_viewport_cmd(ViewportCommand::Visible(false));
+        cc.egui_ctx.send_viewport_cmd(ViewportCommand::Visible(true));
         Self::default()
     }
 }
