@@ -22,7 +22,7 @@ pub struct Demo {
     pub word_count: usize,
     pub use_database: bool,
     pub is_distracted: bool,
-    pub user_data_sort: i32,
+    pub user_data_sort_mode: bool,
 }
 
 impl Default for Demo {
@@ -38,7 +38,7 @@ impl Default for Demo {
             word_count: 25,
             use_database: false,
             is_distracted: true,
-            user_data_sort: 0,
+            user_data_sort_mode: false,
         }
     }
 }
