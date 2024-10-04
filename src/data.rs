@@ -124,14 +124,14 @@ impl Data {
             let mut pairs_lock = pairs_clone.lock().unwrap_or_else(|e| e.into_inner());
             *pairs_lock = average_durations;
 
-            if total_segment_time.as_secs_f32() > 0.0 && segment_char_count > 0 {
-                let total_time_minutes = total_segment_time.as_secs_f32() / 60.0;
+            if total_segment_time.as_secs_f32() > 0. && segment_char_count > 0 {
+                let total_time_minutes = total_segment_time.as_secs_f32() / 60.;
                 let wpm = (segment_char_count as f32 / 5.0) / total_time_minutes;
 
                 let cpe = if segment_char_count > 0 {
-                    corrections as f32 / segment_char_count as f32 * 100.0
+                    corrections as f32 / segment_char_count as f32 * 100.
                 } else {
-                    0.0
+                    0.
                 };
 
                 let mut wpm_lock = wpm_clone.lock().unwrap_or_else(|e| e.into_inner());
