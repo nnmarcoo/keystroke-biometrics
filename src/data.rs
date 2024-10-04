@@ -202,7 +202,7 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                 let k1 = key1.to_ascii_uppercase();
                 let k2 = key2.to_ascii_uppercase();
 
-                let key_pair_display = format!("{} ➡ {} ", k1, k2);
+                let key_pair_display = format!("{} ➡ {}", k1, k2);
                 let duration_display = format!("{:.4}", duration_ms);
                 let hover_text = format!("{}➡{} key pair", k1, k2);
                 let duration_hover =
