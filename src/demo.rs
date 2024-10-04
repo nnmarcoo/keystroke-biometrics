@@ -7,12 +7,12 @@ use crate::{
     util::gen_passage,
 };
 use eframe::{
-    egui::{CentralPanel, Context, Key, Separator, Widget},
+    egui::{CentralPanel, Context, Key, Separator, SystemTheme, ViewportCommand, Widget},
     App, CreationContext, Frame,
 };
 
 pub struct Demo {
-    pub passage: String, // Change to vec and store chars and wrods separately ?
+    pub passage: String,
     pub input: String,
     pub type_data: Data,
 
@@ -23,6 +23,7 @@ pub struct Demo {
     pub use_database: bool,
     pub is_distracted: bool,
     pub user_data_sort_mode: bool,
+    pub fullscreen: bool,
 }
 
 impl Default for Demo {
@@ -38,19 +39,27 @@ impl Default for Demo {
             word_count: 25,
             use_database: false,
             is_distracted: true,
-            user_data_sort_mode: false,
+            user_data_sort_mode: true,
+            fullscreen: false,
         }
     }
 }
 
 impl Demo {
-    pub fn new(_cc: &CreationContext<'_>) -> Self {
+    pub fn new(cc: &CreationContext<'_>) -> Self {
+        cc.egui_ctx.send_viewport_cmd(ViewportCommand::SetTheme(SystemTheme::Dark));
         Self::default()
     }
 }
 
 impl App for Demo {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+
+        if ctx.input(|i| i.key_pressed(Key::F11)) {
+            self.fullscreen = !self.fullscreen;
+            ctx.send_viewport_cmd(ViewportCommand::Fullscreen(self.fullscreen));
+        }
+
         CentralPanel::default().show(ctx, |ui| {
             render_top_bar(self, ui);
             Separator::default().ui(ui);
