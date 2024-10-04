@@ -103,6 +103,10 @@ impl Data {
 }
 
 pub fn render_data(app: &mut Demo, ui: &mut Ui) {
+    if !app.type_data.is_populated() {
+        return;
+    }
+    
     let pairs_lock = app.type_data.get_pairs();
     let average_pairs = pairs_lock.lock().unwrap().clone();
 
