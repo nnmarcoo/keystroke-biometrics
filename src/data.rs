@@ -106,7 +106,7 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
     if !app.type_data.is_populated() {
         return;
     }
-    
+
     let pairs_lock = app.type_data.get_pairs();
     let average_pairs = pairs_lock.lock().unwrap().clone();
 
@@ -115,7 +115,7 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
     if app.user_data_sort_mode {
         sorted_pairs.sort_by(|a, b| a.0.cmp(&b.0));
     } else {
-        sorted_pairs.sort_by(|a, b| b.1.cmp(&a.1));
+        sorted_pairs.sort_by(|a, b| a.1.cmp(&b.1));
     }
 
     ScrollArea::vertical().show(ui, |ui| {
