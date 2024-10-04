@@ -1,5 +1,6 @@
 use eframe::egui::{Grid, RichText, ScrollArea, Ui};
 use std::sync::{Arc, Mutex};
+use std::thread;
 use std::{
     collections::HashMap,
     time::{Duration, Instant},
@@ -57,37 +58,43 @@ impl Data {
         self.history.clear();
         self.breaks = 0;
         self.corrections = 0;
+        self.update_pairs();
     }
 
-    pub fn update_pairs(&mut self) {
-        let mut pair_durations = HashMap::new();
+    pub fn update_pairs(&self) {
+        let pairs_clone = Arc::clone(&self.pairs);
+        let history_clone = self.history.clone();
 
-        for window in self.history.windows(2) {
-            let (key1, time1) = window[0];
-            let (key2, time2) = window[1];
+        thread::spawn(move || {
+            let mut pair_durations = HashMap::new();
 
-            if key1 == '_' || key1 == ' ' || key2 == '_' || key2 == ' ' {
-                continue;
+            for window in history_clone.windows(2) {
+                let (key1, time1) = window[0];
+                let (key2, time2) = window[1];
+
+                if key1 == '_' || key1 == ' ' || key2 == '_' || key2 == ' ' {
+                    continue;
+                }
+
+                let duration = time2.duration_since(time1);
+
+                let entry = pair_durations
+                    .entry((key1, key2))
+                    .or_insert((Duration::new(0, 0), 0));
+                entry.0 += duration;
+                entry.1 += 1;
             }
 
-            let duration = time2.duration_since(time1);
+            let mut average_durations = HashMap::new();
 
-            let entry = pair_durations
-                .entry((key1, key2))
-                .or_insert((Duration::new(0, 0), 0));
-            entry.0 += duration;
-            entry.1 += 1;
-        }
+            for (pair, (total_duration, count)) in pair_durations {
+                let average_duration = total_duration / count as u32;
+                average_durations.insert(pair, average_duration);
+            }
 
-        let mut average_durations = HashMap::new();
-
-        for (pair, (total_duration, count)) in pair_durations {
-            let average_duration = total_duration / count as u32;
-            average_durations.insert(pair, average_duration);
-        }
-
-        let mut pairs_lock = self.pairs.lock().unwrap();
-        *pairs_lock = average_durations;
+            let mut pairs_lock = pairs_clone.lock().unwrap();
+            *pairs_lock = average_durations;
+        });
     }
 
     pub fn get_pairs(&self) -> Arc<Mutex<HashMap<(char, char), Duration>>> {
