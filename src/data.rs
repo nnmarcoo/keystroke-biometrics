@@ -68,22 +68,22 @@ impl Data {
     pub fn update_data(&self) {
         let pairs_clone = Arc::clone(&self.pairs);
         let history_clone = self.history.clone();
-    
+
         let wpm_clone = Arc::clone(&self.wpm);
         let cpe_clone = Arc::clone(&self.cpe);
         let corrections = self.corrections;
-    
+
         thread::spawn(move || {
             let mut pair_durations = HashMap::new();
             let mut total_segment_time = Duration::new(0, 0);
             let mut segment_char_count = 0;
-    
+
             let mut segment_start: Option<Instant> = None;
-    
+
             for window in history_clone.windows(2) {
                 let (key1, time1) = window[0];
                 let (key2, time2) = window[1];
-    
+
                 if key1 == '_' {
                     segment_start = Some(time2);
                 } else if key2 == '_' {
@@ -103,7 +103,7 @@ impl Data {
                     entry.0 += duration;
                     entry.1 += 1;
                 }
-    
+
                 if key1.is_alphabetic() {
                     segment_char_count += 1;
                 }
@@ -114,29 +114,29 @@ impl Data {
                     total_segment_time += last_time.duration_since(start_time);
                 }
             }
-    
+
             let mut average_durations = HashMap::new();
             for (pair, (total_duration, count)) in pair_durations {
                 let average_duration = total_duration / count as u32;
                 average_durations.insert(pair, average_duration);
             }
-    
+
             let mut pairs_lock = pairs_clone.lock().unwrap_or_else(|e| e.into_inner());
             *pairs_lock = average_durations;
-    
+
             if total_segment_time.as_secs_f32() > 0.0 && segment_char_count > 0 {
                 let total_time_minutes = total_segment_time.as_secs_f32() / 60.0;
                 let wpm = (segment_char_count as f32 / 5.0) / total_time_minutes;
-    
+
                 let cpe = if segment_char_count > 0 {
                     corrections as f32 / segment_char_count as f32 * 100.0
                 } else {
                     0.0
                 };
-    
+
                 let mut wpm_lock = wpm_clone.lock().unwrap_or_else(|e| e.into_inner());
                 *wpm_lock = wpm;
-    
+
                 let mut foc_lock = cpe_clone.lock().unwrap_or_else(|e| e.into_inner());
                 *foc_lock = cpe;
             }
