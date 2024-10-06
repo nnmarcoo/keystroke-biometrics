@@ -1,5 +1,5 @@
 use eframe::egui::{vec2, Button, DragValue, TextEdit, Ui};
-use crate::ops::{clear_metrics, clear_pairs, clear_users, create_user, insert_metrics, insert_pairs};
+use crate::ops::{create_user, insert_metrics, insert_pairs};
 
 use crate::{
     db::establish_connection,
