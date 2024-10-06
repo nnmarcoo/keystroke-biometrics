@@ -1,6 +1,6 @@
 use eframe::egui::{vec2, Button, DragValue, TextEdit, Ui};
 
-use crate::{demo::Demo, toggle_switch::toggle, util::gen_passage};
+use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle, util::gen_passage};
 
 pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
     let toggle_text = if app.use_database {
@@ -31,8 +31,15 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
             }
         }
 
-        ui.add(toggle(&mut app.use_database))
-            .on_hover_text(toggle_text);
+        if ui.add(toggle(&mut app.use_database))
+            .on_hover_text(toggle_text).changed() {
+                if app.use_database {
+                    match std::panic::catch_unwind(|| establish_connection()) {
+                        Ok(_) => println!("Successfully connected to the database!"),
+                        Err(_) => println!("Failed to connect to the database."),
+                    }
+                }
+            }
 
         ui.add_space(ui.available_width() - 94.);
 

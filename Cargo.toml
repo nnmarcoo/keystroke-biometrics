@@ -7,6 +7,9 @@ edition = "2021"
 eframe = "0.28.1"
 rand = "0.8.5"
 image = "0.25.2"
+diesel = { version = "2.2.4", features = ["mysql"] }
+mysqlclient-sys = "0.4.1"
+dotenvy = "0.15.7"
 
 [profile.release]
 panic = "abort" # Strip expensive panic clean-up logic

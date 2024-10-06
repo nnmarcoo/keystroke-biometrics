@@ -7,6 +7,8 @@ mod toggle_switch;
 mod top_bar;
 mod typing;
 mod util;
+mod schema;
+mod db;
 
 use demo::Demo;
 use eframe::{
