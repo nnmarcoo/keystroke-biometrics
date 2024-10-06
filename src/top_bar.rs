@@ -1,6 +1,12 @@
 use eframe::egui::{vec2, Button, DragValue, TextEdit, Ui};
+use crate::ops::{clear_metrics, clear_pairs, clear_users, create_user, insert_metrics, insert_pairs};
 
-use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle, util::gen_passage};
+use crate::{
+    db::establish_connection,
+    demo::Demo,
+    toggle_switch::toggle,
+    util::gen_passage,
+};
 
 pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
     let toggle_text = if app.use_database {
@@ -27,19 +33,27 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
             .clicked()
         {
             if app.username.len() > 0 {
-                todo!("type_data.send");
+                if app.use_database {
+                    let id = create_user(&app.username).unwrap();
+                    insert_pairs(id, &app.type_data);
+                    insert_metrics(id, app.type_data.get_wpm_value(), app.type_data.get_cpe_value());
+                    app.username.clear();
+                }
             }
         }
 
-        if ui.add(toggle(&mut app.use_database))
-            .on_hover_text(toggle_text).changed() {
-                if app.use_database {
-                    match std::panic::catch_unwind(|| establish_connection()) {
-                        Ok(_) => println!("Successfully connected to the database!"),
-                        Err(_) => println!("Failed to connect to the database."),
-                    }
+        if ui
+            .add(toggle(&mut app.use_database))
+            .on_hover_text(toggle_text)
+            .changed()
+        {
+            if app.use_database {
+                if let Some(_) = establish_connection() {
+                } else {
+                    app.use_database = false;
                 }
             }
+        }
 
         ui.add_space(ui.available_width() - 94.);
 

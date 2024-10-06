@@ -1,4 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#[macro_use]
+extern crate diesel;
 
 mod constants;
 mod data;
@@ -9,6 +11,8 @@ mod typing;
 mod util;
 mod schema;
 mod db;
+mod models;
+mod ops;
 
 use demo::Demo;
 use eframe::{

@@ -1,7 +1,7 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    metric (id) {
+    metrics (id) {
         id -> Integer,
         WPM -> Float,
         CPE -> Float,
@@ -25,11 +25,11 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(metric -> user (id));
+diesel::joinable!(metrics -> user (id));
 diesel::joinable!(pairs -> user (id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    metric,
+    metrics,
     pairs,
     user,
 );
