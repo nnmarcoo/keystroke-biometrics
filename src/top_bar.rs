@@ -1,12 +1,7 @@
+use crate::ops::{create_user, get_users, insert_metrics, insert_pairs};
 use eframe::egui::{vec2, Button, DragValue, TextEdit, Ui};
-use crate::ops::{create_user, insert_metrics, insert_pairs};
 
-use crate::{
-    db::establish_connection,
-    demo::Demo,
-    toggle_switch::toggle,
-    util::gen_passage,
-};
+use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle, util::gen_passage};
 
 pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
     let toggle_text = if app.use_database {
@@ -34,10 +29,15 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
         {
             if app.username.len() > 0 {
                 if app.use_database {
-                    let id = create_user(&app.username).unwrap();
-                    insert_pairs(id, &app.type_data);
-                    insert_metrics(id, app.type_data.get_wpm_value(), app.type_data.get_cpe_value());
+                    let id = create_user(&app.username.to_lowercase()).unwrap();
                     app.username.clear();
+                    insert_pairs(id, &app.type_data);
+                    insert_metrics(
+                        id,
+                        app.type_data.get_wpm_value(),
+                        app.type_data.get_cpe_value(),
+                    );
+                    app.users = get_users().unwrap();
                 }
             }
         }
@@ -49,6 +49,7 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
         {
             if app.use_database {
                 if let Some(_) = establish_connection() {
+                    app.users = get_users().unwrap();
                 } else {
                     app.use_database = false;
                 }
@@ -78,7 +79,7 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
 
         if ui
             .add_enabled(true, Button::new("🗙").min_size(vec2(16., 16.)))
-            .on_hover_text("Clear data")
+            .on_hover_text("Clear client data")
             .clicked()
         {
             app.input.clear();

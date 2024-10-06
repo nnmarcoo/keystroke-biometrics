@@ -194,7 +194,7 @@ impl Data {
         let wpm_lock = self.wpm.lock().unwrap_or_else(|e| e.into_inner());
         *wpm_lock
     }
-    
+
     pub fn get_cpe_value(&self) -> f32 {
         let cpe_lock = self.cpe.lock().unwrap_or_else(|e| e.into_inner());
         *cpe_lock
@@ -221,50 +221,52 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
     let wpm = wpm_lock.lock().unwrap().clone();
     let cpe = cpe_lock.lock().unwrap().clone();
 
-    ScrollArea::vertical().show(ui, |ui| {
-        Grid::new("key_pairs_grid").striped(true).show(ui, |ui| {
-            ui.label(RichText::new("WPM").font(FONT_ID_12))
-                .on_hover_text("Words per minute");
-            ui.label(RichText::new(format!("{:.4}", wpm)).font(FONT_ID_12))
-                .on_hover_text(format!("{:.0} words per minute", wpm));
-            ui.end_row();
-
-            ui.label(RichText::new("CPE").font(FONT_ID_12))
-                .on_hover_text("% likelihood of mistake per character");
-            ui.label(RichText::new(format!("{:.4}", cpe)).font(FONT_ID_12))
-                .on_hover_text(format!(
-                    "{:.0}% chance that you make a mistake per character",
-                    cpe
-                ));
-            ui.end_row();
-
-            Separator::default().ui(ui);
-            Separator::default().ui(ui);
-            ui.end_row();
-
-            for ((key1, key2), duration) in &sorted_pairs {
-                let duration_ms = duration.as_secs_f64() * 1000.0;
-                let k1 = key1.to_ascii_uppercase();
-                let k2 = key2.to_ascii_uppercase();
-
-                let key_pair_display = format!("{} ➡ {}", k1, k2);
-                let duration_display = format!("{:.4}", duration_ms);
-                let hover_text = format!("{}➡{} key pair", k1, k2);
-                let duration_hover =
-                    format!("{:.0}ms between the {}➡{} key pair", duration_ms, k1, k2);
-
-                let pair_res = ui
-                    .label(RichText::new(&key_pair_display).font(FONT_ID_12))
-                    .on_hover_text(&hover_text);
-                let time_res = ui
-                    .label(RichText::new(&duration_display).font(FONT_ID_12))
-                    .on_hover_text(&duration_hover);
+    ScrollArea::vertical()
+        .id_source("user_data_scroll")
+        .show(ui, |ui| {
+            Grid::new("key_pairs_grid").striped(true).show(ui, |ui| {
+                ui.label(RichText::new("WPM").font(FONT_ID_12))
+                    .on_hover_text("Words per minute");
+                ui.label(RichText::new(format!("{:.4}", wpm)).font(FONT_ID_12))
+                    .on_hover_text(format!("{:.0} words per minute", wpm));
                 ui.end_row();
 
-                if pair_res.clicked() || time_res.clicked() {
-                    app.user_data_sort_mode = !app.user_data_sort_mode;
+                ui.label(RichText::new("CPE").font(FONT_ID_12))
+                    .on_hover_text("% likelihood of mistake per character");
+                ui.label(RichText::new(format!("{:.4}", cpe)).font(FONT_ID_12))
+                    .on_hover_text(format!(
+                        "{:.0}% chance that you make a mistake per character",
+                        cpe
+                    ));
+                ui.end_row();
+
+                Separator::default().ui(ui);
+                Separator::default().ui(ui);
+                ui.end_row();
+
+                for ((key1, key2), duration) in &sorted_pairs {
+                    let duration_ms = duration.as_secs_f64() * 1000.0;
+                    let k1 = key1.to_ascii_uppercase();
+                    let k2 = key2.to_ascii_uppercase();
+
+                    let key_pair_display = format!("{} ➡ {}", k1, k2);
+                    let duration_display = format!("{:.4}", duration_ms);
+                    let hover_text = format!("{}➡{} key pair", k1, k2);
+                    let duration_hover =
+                        format!("{:.0}ms between the {}➡{} key pair", duration_ms, k1, k2);
+
+                    let pair_res = ui
+                        .label(RichText::new(&key_pair_display).font(FONT_ID_12))
+                        .on_hover_text(&hover_text);
+                    let time_res = ui
+                        .label(RichText::new(&duration_display).font(FONT_ID_12))
+                        .on_hover_text(&duration_hover);
+                    ui.end_row();
+
+                    if pair_res.clicked() || time_res.clicked() {
+                        app.user_data_sort_mode = !app.user_data_sort_mode;
+                    }
                 }
-            }
+            });
         });
-    });
 }

@@ -1,8 +1,15 @@
-use eframe::egui::{pos2, Color32, IconData, Key, Painter, Pos2, Stroke};
+use eframe::egui::{
+    pos2, Color32, Grid, IconData, Key, Painter, Pos2, RichText, ScrollArea, Stroke, Ui,
+};
 use image::load_from_memory;
 use rand::seq::SliceRandom;
 
-use crate::constants;
+use crate::{
+    constants::{self, FONT_ID_12, SOFT_GREEN},
+    data::Data,
+    demo::Demo,
+    ops::{match_metrics, match_pairs},
+};
 
 pub fn gen_passage(length: usize) -> String {
     let words = vec![
@@ -94,8 +101,40 @@ pub fn draw_cursor(painter: &Painter, pos: Pos2, color: Color32) {
     painter.line_segment(
         [
             pos2(pos.x, pos.y + constants::CHAR_SPACING),
-            pos2(pos.x + constants::CHAR_SPACING, pos.y + constants::CHAR_SPACING),
+            pos2(
+                pos.x + constants::CHAR_SPACING,
+                pos.y + constants::CHAR_SPACING,
+            ),
         ],
         Stroke::new(2., color),
     );
+}
+
+pub fn render_users(app: &Demo, ui: &mut Ui) {
+    ScrollArea::vertical()
+        .id_source("users_scroll")
+        .show(ui, |ui| {
+            Grid::new("users_grid").striped(true).show(ui, |ui| {
+                for u in app.users.iter() {
+                    if u.0 == app.matched_user {
+                        ui.label(RichText::new(&u.1).font(FONT_ID_12).color(SOFT_GREEN));
+                    } else {
+                        ui.label(RichText::new(&u.1).font(FONT_ID_12));
+                    }
+
+                    ui.end_row();
+                }
+            });
+        });
+}
+
+pub fn get_match(type_data: &Data) -> Option<i32> {
+    let mut pairs = match_pairs(type_data).unwrap();
+    let metrics = match_metrics(type_data).unwrap();
+
+    pairs.entry(metrics.0).and_modify(|e| *e += 10).or_insert(1);
+
+    pairs.entry(metrics.1).and_modify(|e| *e += 10).or_insert(1);
+
+    pairs.into_iter().max_by_key(|&(_, v)| v).map(|(k, _)| k)
 }

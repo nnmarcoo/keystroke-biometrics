@@ -1,10 +1,10 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, i32};
 
 use crate::{
     data::{render_data, Data},
     top_bar::render_top_bar,
     typing::render_typing,
-    util::gen_passage,
+    util::{gen_passage, render_users},
 };
 use eframe::{
     egui::{CentralPanel, Context, Key, Separator, SystemTheme, ViewportCommand, Widget},
@@ -24,6 +24,9 @@ pub struct Demo {
     pub is_distracted: bool,
     pub user_data_sort_mode: bool,
     pub fullscreen: bool,
+
+    pub users: Vec<(i32, String)>,
+    pub matched_user: i32,
 }
 
 impl Default for Demo {
@@ -41,22 +44,27 @@ impl Default for Demo {
             is_distracted: true,
             user_data_sort_mode: true,
             fullscreen: false,
+
+            users: Vec::new(),
+            matched_user: i32::MAX,
         }
     }
 }
 
 impl Demo {
     pub fn new(cc: &CreationContext<'_>) -> Self {
-        cc.egui_ctx.send_viewport_cmd(ViewportCommand::SetTheme(SystemTheme::Dark));
-        cc.egui_ctx.send_viewport_cmd(ViewportCommand::Decorations(false));
-        cc.egui_ctx.send_viewport_cmd(ViewportCommand::Decorations(true));
+        cc.egui_ctx
+            .send_viewport_cmd(ViewportCommand::SetTheme(SystemTheme::Dark));
+        cc.egui_ctx
+            .send_viewport_cmd(ViewportCommand::Decorations(false));
+        cc.egui_ctx
+            .send_viewport_cmd(ViewportCommand::Decorations(true));
         Self::default()
     }
 }
 
 impl App for Demo {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-
         if ctx.input(|i| i.key_pressed(Key::F11)) {
             self.fullscreen = !self.fullscreen;
             ctx.send_viewport_cmd(ViewportCommand::Fullscreen(self.fullscreen));
@@ -73,6 +81,7 @@ impl App for Demo {
                 if self.type_data.is_populated() {
                     Separator::default().vertical().ui(ui);
                 }
+                render_users(self, ui);
             });
         });
     }

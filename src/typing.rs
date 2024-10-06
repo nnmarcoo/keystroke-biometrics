@@ -1,7 +1,7 @@
 use crate::{
     constants,
     demo::Demo,
-    util::{draw_cursor, gen_passage, key_to_char},
+    util::{draw_cursor, gen_passage, get_match, key_to_char},
 };
 use eframe::egui::{pos2, Align2, Color32, Key, Ui};
 
@@ -109,6 +109,10 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
             }
         }
         app.previous_keys = current_keys;
+
+        if app.use_database {
+            app.matched_user = get_match(&app.type_data).unwrap();
+        }
     });
 
     ui.add_space(pos.y - 30.);
