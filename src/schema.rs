@@ -3,8 +3,8 @@
 diesel::table! {
     metrics (id) {
         id -> Integer,
-        WPM -> Float,
-        CPE -> Float,
+        wpm -> Float,
+        cpe -> Float,
     }
 }
 

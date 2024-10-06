@@ -17,8 +17,8 @@ pub struct NewUser<'a> {
 #[table_name = "metrics"]
 pub struct Metric {
     pub id: i32,
-    pub WPM: f32,
-    pub CPE: f32,
+    pub wpm: f32,
+    pub cpe: f32,
 }
 
 #[derive(Queryable, Insertable)]

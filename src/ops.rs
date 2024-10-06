@@ -31,8 +31,8 @@ pub fn insert_metrics(user_id: i32, user_wpm: f32, user_cpe: f32) {
     let mut conn = establish_connection().unwrap();
     let new_metric = Metric {
         id: user_id,
-        WPM: user_wpm,
-        CPE: user_cpe,
+        wpm: user_wpm,
+        cpe: user_cpe,
     };
 
     let _ = diesel::insert_into(metrics)
