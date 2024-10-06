@@ -1,4 +1,5 @@
 use eframe::egui::{Color32, FontId};
+pub const DATABASE_URL: &str = "mysql://root@localhost/keys";
 
 pub const SOFT_GREEN: Color32 = Color32::from_rgb(119, 221, 119); // #77dd77
 pub const SOFT_RED: Color32 = Color32::from_rgb(255, 105, 97); // #ff6961
