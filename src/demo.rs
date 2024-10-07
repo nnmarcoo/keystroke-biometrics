@@ -1,4 +1,7 @@
-use std::{collections::HashSet, i32};
+use std::{
+    collections::{HashMap, HashSet},
+    i32,
+};
 
 use crate::{
     data::{render_data, Data},
@@ -26,7 +29,7 @@ pub struct Demo {
     pub fullscreen: bool,
 
     pub users: Vec<(i32, String)>,
-    pub matched_user: i32,
+    pub match_and_counts: (i32, i32, HashMap<i32, usize>),
 }
 
 impl Default for Demo {
@@ -46,7 +49,7 @@ impl Default for Demo {
             fullscreen: false,
 
             users: Vec::new(),
-            matched_user: i32::MAX,
+            match_and_counts: (i32::MAX, i32::MAX, HashMap::new()),
         }
     }
 }
@@ -81,7 +84,11 @@ impl App for Demo {
                 if self.type_data.is_populated() {
                     Separator::default().vertical().ui(ui);
                 }
-                render_users(self, ui);
+
+                if self.use_database {
+                    render_users(self, ui);
+                    Separator::default().vertical().ui(ui);
+                }
             });
         });
     }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use eframe::egui::{
     pos2, Color32, Grid, IconData, Key, Painter, Pos2, RichText, ScrollArea, Stroke, Ui,
 };
@@ -112,29 +114,56 @@ pub fn draw_cursor(painter: &Painter, pos: Pos2, color: Color32) {
 
 pub fn render_users(app: &Demo, ui: &mut Ui) {
     ScrollArea::vertical()
-        .id_source("users_scroll")
+        .id_salt("users_scroll")
         .show(ui, |ui| {
             Grid::new("users_grid").striped(true).show(ui, |ui| {
                 for u in app.users.iter() {
-                    if u.0 == app.matched_user {
-                        ui.label(RichText::new(&u.1).font(FONT_ID_12).color(SOFT_GREEN));
-                    } else {
-                        ui.label(RichText::new(&u.1).font(FONT_ID_12));
-                    }
+                    if app.match_and_counts.2.contains_key(&u.0) {
+                        let mut color = Color32::GRAY;
+                        if u.0 == app.match_and_counts.0 {
+                            color = SOFT_GREEN;
+                        }
 
-                    ui.end_row();
+                        let v = *app.match_and_counts.2.get(&u.0).unwrap() as f32;
+                        let p = v / (app.match_and_counts.1 as f32) * 100.;
+
+                        ui.label(RichText::new(&u.1).font(FONT_ID_12).color(color))
+                            .on_hover_text(&format!("ID: {}", u.0));
+
+                        ui.label(
+                            RichText::new(format!("{:.2}%", p))
+                                .font(FONT_ID_12)
+                                .color(color),
+                        )
+                        .on_hover_text(&format!("{} / {}", v, app.match_and_counts.1));
+
+                        ui.end_row();
+                    }
+                }
+
+                for u in app.users.iter() {
+                    if !app.match_and_counts.2.contains_key(&u.0) {
+                        ui.label(RichText::new(&u.1).font(FONT_ID_12).color(Color32::GRAY))
+                            .on_hover_text(&format!("ID: {}", u.0));
+
+                        ui.label(RichText::new("0.00%").font(FONT_ID_12).color(Color32::GRAY))
+                            .on_hover_text("0 / 0");
+                        ui.end_row();
+                    }
                 }
             });
         });
 }
 
-pub fn get_match(type_data: &Data) -> Option<i32> {
-    let mut pairs = match_pairs(type_data).unwrap();
+pub fn get_match(type_data: &Data) -> Option<(i32, i32, HashMap<i32, usize>)> {
+    let mut pairs = match_pairs(type_data);
     let metrics = match_metrics(type_data).unwrap();
 
-    pairs.entry(metrics.0).and_modify(|e| *e += 10).or_insert(1);
+    pairs.entry(metrics.0).and_modify(|e| *e += 5).or_insert(1);
+    pairs.entry(metrics.1).and_modify(|e| *e += 5).or_insert(1);
 
-    pairs.entry(metrics.1).and_modify(|e| *e += 10).or_insert(1);
+    let max_key = pairs.iter().max_by_key(|&(_, v)| v).map(|(&k, _)| k)?;
+    let total_count: i32 = pairs.values().sum::<usize>() as i32;
 
-    pairs.into_iter().max_by_key(|&(_, v)| v).map(|(k, _)| k)
+    Some((max_key, total_count, pairs))
 }

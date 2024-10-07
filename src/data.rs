@@ -11,6 +11,7 @@ use std::io::{self, Write};
 
 use crate::{constants::FONT_ID_12, demo::Demo};
 
+#[derive(Clone)]
 pub struct Data {
     history: Vec<(char, Instant)>,
     breaks: i32,
@@ -280,7 +281,7 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
     let cpe = cpe_lock.lock().unwrap().clone();
 
     ScrollArea::vertical()
-        .id_source("user_data_scroll")
+        .id_salt("user_data_scroll")
         .show(ui, |ui| {
             Grid::new("key_pairs_grid").striped(true).show(ui, |ui| {
                 ui.label(RichText::new("WPM").font(FONT_ID_12))
@@ -336,8 +337,8 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                         }
                     };
 
-                    pair_res.context_menu(|ui| create_context_menu(ui));
-                    time_res.context_menu(|ui| create_context_menu(ui));
+                    //pair_res.context_menu(|ui| create_context_menu(ui));
+                    //time_res.context_menu(|ui| create_context_menu(ui));
                 }
             });
         });

@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use crate::data::Data;
 use crate::db::establish_connection;
-use crate::models::{Metric, NewUser, Pair};
-use crate::schema::metrics::{self, id};
+use crate::models::{Metric, NewUser, Pair, PairResult};
+use crate::schema::{pairs, user};
 use diesel::prelude::*;
-use diesel::sql_types::Float;
+use diesel::sql_types::{Float, Text};
 
 pub fn create_user(user_name: &str) -> QueryResult<i32> {
     use crate::schema::user::dsl::*;
@@ -88,13 +88,7 @@ pub fn clear_pairs() -> QueryResult<usize> {
     diesel::delete(pairs).execute(&mut conn)
 }
 
-define_sql_function! {
-    fn abs(x: Float) -> Float;
-}
-
-pub fn match_pairs(type_data: &Data) -> QueryResult<HashMap<i32, usize>> {
-    use crate::schema::pairs::dsl::*;
-    use crate::schema::user::dsl::id;
+pub fn match_pairs(type_data: &Data) -> HashMap<i32, usize> {
     let data = type_data.clean_pairs(2.);
     let mut conn = establish_connection().unwrap();
 
@@ -104,21 +98,25 @@ pub fn match_pairs(type_data: &Data) -> QueryResult<HashMap<i32, usize>> {
         let key_pair = format!("{}{}", key.0, key.1);
         let input_interval = duration.as_secs_f32() * 1000.0;
 
-        let result = pairs
-            .filter(pair.eq(&key_pair))
-            .order_by(diesel::dsl::sql::<Float>(&format!(
-              "ABS(interval - {})",
-              input_interval
-          )))
-            .inner_join(crate::schema::user::table.on(id.eq(crate::schema::user::dsl::id)))
-            .select(id)
-            .first::<i32>(&mut conn);
+        let results = diesel::sql_query(
+            "SELECT u.id, u.name, p.pair, p.interval
+             FROM pairs p, user u
+             WHERE p.id = u.id
+             AND p.pair = ?
+             ORDER BY ABS(p.interval - ?)
+             LIMIT 1",
+        )
+        .bind::<Text, _>(&key_pair)
+        .bind::<Float, _>(input_interval)
+        .load::<PairResult>(&mut conn)
+        .expect("Error loading pairs");
 
-        if let Ok(matched_id) = result {
-            *user_counts.entry(matched_id).or_insert(0) += 1;
+        for result in results {
+            *user_counts.entry(result.id).or_insert(0) += 1;
         }
     }
-    Ok(user_counts)
+
+    user_counts
 }
 
 pub fn match_metrics(type_data: &Data) -> QueryResult<(i32, i32)> {

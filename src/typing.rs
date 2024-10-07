@@ -1,3 +1,5 @@
+use std::{sync::mpsc, thread};
+
 use crate::{
     constants,
     demo::Demo,
@@ -107,12 +109,22 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
                 }
                 app.input.pop();
             }
+
+            if app.use_database {
+                let (tx, rx) = mpsc::channel();
+                let type_data = app.type_data.clone();
+            
+                thread::spawn(move || {
+                    let result = get_match(&type_data).unwrap();
+                    tx.send(result).unwrap();
+                });
+            
+                if let Ok(result) = rx.recv() {
+                    app.match_and_counts = result;
+                }
+            }
         }
         app.previous_keys = current_keys;
-
-        if app.use_database {
-            app.matched_user = get_match(&app.type_data).unwrap();
-        }
     });
 
     ui.add_space(pos.y - 30.);
