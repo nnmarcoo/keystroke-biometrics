@@ -6,6 +6,9 @@ use std::{
     time::{Duration, Instant},
 };
 
+use std::fs::File;
+use std::io::{self, Write};
+
 use crate::{constants::FONT_ID_12, demo::Demo};
 
 pub struct Data {
@@ -199,6 +202,61 @@ impl Data {
         let cpe_lock = self.cpe.lock().unwrap_or_else(|e| e.into_inner());
         *cpe_lock
     }
+
+    pub fn export_to_csv(&self) -> Result<(), io::Error> {
+        let mut file = File::create("export.csv")?;
+
+        writeln!(file, "WPM,CPE")?;
+
+        let wpm_value = self.get_wpm_value();
+        let cpe_value = self.get_cpe_value();
+        writeln!(file, "{:.4},{:.4}", wpm_value, cpe_value)?;
+
+        let pairs_lock = self.get_pairs();
+        let pairs = pairs_lock.lock().unwrap();
+
+        writeln!(file, "Pair,Interval (ms)")?;
+
+        for ((key1, key2), duration) in pairs.iter() {
+            let pair = format!("{}{}", key1, key2);
+            let duration_ms = duration.as_secs_f64() * 1000.0;
+
+            writeln!(file, "{}, {:.4}", pair, duration_ms)?;
+        }
+        Ok(())
+    }
+
+    pub fn export_to_sql(&self) -> Result<String, io::Error> {
+        let mut sql_statements = String::new();
+
+        let wpm_value = self.get_wpm_value();
+        let cpe_value = self.get_cpe_value();
+
+        sql_statements.push_str("INSERT INTO USER (name) VALUES ('<NAME>');\n\n");
+
+        sql_statements.push_str(&format!(
+            "INSERT INTO METRICS (id, wpm, cpe) VALUES (?, {:.4}, {:.4});\n\n",
+            wpm_value, cpe_value
+        ));
+
+        let pairs_lock = self.get_pairs();
+        let pairs = pairs_lock.lock().unwrap();
+
+        for ((key1, key2), duration) in pairs.iter() {
+            let pair = format!("{}{}", key1, key2);
+            let duration_ms = duration.as_secs_f64() * 1000.0;
+
+            sql_statements.push_str(&format!(
+                "INSERT INTO PAIRS (id, pair, `interval`) VALUES (?, '{}', {:.4});\n",
+                pair, duration_ms
+            ));
+        }
+
+        let mut file = File::create("export.sql")?;
+        file.write_all(sql_statements.as_bytes())?;
+
+        Ok(sql_statements)
+    }
 }
 
 pub fn render_data(app: &mut Demo, ui: &mut Ui) {
@@ -266,6 +324,20 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                     if pair_res.clicked() || time_res.clicked() {
                         app.user_data_sort_mode = !app.user_data_sort_mode;
                     }
+
+                    let create_context_menu = |ui: &mut Ui| {
+                        if ui.button("Export to .sql").clicked() {
+                            let _ = app.type_data.export_to_sql();
+                            ui.close_menu();
+                        }
+                        if ui.button("Export to .csv").clicked() {
+                            let _ = app.type_data.export_to_csv();
+                            ui.close_menu();
+                        }
+                    };
+
+                    pair_res.context_menu(|ui| create_context_menu(ui));
+                    time_res.context_menu(|ui| create_context_menu(ui));
                 }
             });
         });
