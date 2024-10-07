@@ -337,8 +337,8 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                         }
                     };
 
-                    //pair_res.context_menu(|ui| create_context_menu(ui));
-                    //time_res.context_menu(|ui| create_context_menu(ui));
+                    pair_res.context_menu(|ui| create_context_menu(ui));
+                    time_res.context_menu(|ui| create_context_menu(ui));
                 }
             });
         });

@@ -112,6 +112,7 @@ pub fn draw_cursor(painter: &Painter, pos: Pos2, color: Color32) {
     );
 }
 
+// TODO: Create context menu to delete user from db
 pub fn render_users(app: &Demo, ui: &mut Ui) {
     ScrollArea::vertical()
         .id_salt("users_scroll")

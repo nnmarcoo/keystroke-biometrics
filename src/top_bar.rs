@@ -1,4 +1,4 @@
-use crate::ops::{create_user, get_users, insert_metrics, insert_pairs};
+use crate::{ops::{create_user, get_users, insert_metrics, insert_pairs}, util::get_match};
 use eframe::egui::{vec2, Button, DragValue, TextEdit, Ui};
 
 use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle, util::gen_passage};
@@ -50,6 +50,7 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
             if app.use_database {
                 if let Some(_) = establish_connection() {
                     app.users = get_users().unwrap();
+                    app.match_and_counts = get_match(&app.type_data).unwrap();
                 } else {
                     app.use_database = false;
                 }
