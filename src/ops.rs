@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use crate::data::Data;
 use crate::db::establish_connection;
 use crate::models::{Metric, NewUser, Pair, PairResult};
-use crate::schema::{pairs, user};
 use diesel::prelude::*;
 use diesel::sql_types::{Float, Text};
 
