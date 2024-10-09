@@ -10,7 +10,7 @@ use crate::{
     constants::{self, FONT_ID_12, SOFT_GREEN},
     data::Data,
     demo::Demo,
-    ops::{get_users, match_metrics, match_pairs, remove_user},
+    ops::{match_metrics, match_pairs, remove_user},
 };
 
 pub fn gen_passage(length: usize) -> String {
