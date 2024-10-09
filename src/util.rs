@@ -1,17 +1,20 @@
-use std::collections::HashMap;
+use std::{
+    collections::{HashMap, HashSet},
+    time::Duration,
+};
 
 use eframe::egui::{
     pos2, Color32, Grid, IconData, Key, Painter, Pos2, RichText, ScrollArea, Stroke, Ui,
 };
-use egui_plot::{Bar, BarChart, Orientation, Plot};
+use egui_plot::{Bar, BarChart, Legend, Orientation, Plot, Points};
 use image::load_from_memory;
 use rand::seq::SliceRandom;
 
 use crate::{
-    constants::{self, FONT_ID_12, SOFT_GREEN},
-    data::Data,
+    constants::{self, COLORS, FONT_ID_12, SOFT_GREEN},
+    data::{build_points_from_durations, Data},
     demo::Demo,
-    ops::{get_metrics, match_metrics, match_pairs, remove_user},
+    ops::{get_metrics, get_pairs, match_metrics, match_pairs, remove_user},
 };
 
 pub fn gen_passage(length: usize) -> String {
@@ -160,6 +163,7 @@ pub fn render_users(app: &mut Demo, ui: &mut Ui) {
                             } else {
                                 app.selected_users.insert(user.clone());
                             }
+                            app.selected_points = get_selected_points(app.type_data.get_pairs_copy(), app.selected_users.clone());
                         }
                     }
                 }
@@ -187,6 +191,7 @@ pub fn render_users(app: &mut Demo, ui: &mut Ui) {
                             } else {
                                 app.selected_users.insert(user.clone());
                             }
+                            app.selected_points = get_selected_points(app.type_data.get_pairs_copy(), app.selected_users.clone());
                         }
                     }
                 }
@@ -197,20 +202,6 @@ pub fn render_users(app: &mut Demo, ui: &mut Ui) {
 pub fn render_charts(app: &Demo, ui: &mut Ui) {
     let mut bars: Vec<Bar> = Vec::new();
     let mut x = 0.;
-
-    let colors = [
-    Color32::from_rgb(255, 100, 100), // Red
-    Color32::from_rgb(100, 255, 100), // Green
-    Color32::from_rgb(100, 100, 255), // Blue
-    Color32::from_rgb(255, 255, 100), // Yellow
-    Color32::from_rgb(255, 100, 255), // Magenta
-    Color32::from_rgb(100, 255, 255), // Cyan
-    Color32::from_rgb(255, 165, 0),   // Orange
-    Color32::from_rgb(75, 0, 130),    // Indigo
-    Color32::from_rgb(255, 20, 147),  // Deep Pink
-    Color32::from_rgb(173, 255, 47),  // Green Yellow
-    Color32::from_rgb(0, 255, 255),   // Aqua
-];
 
     bars.push(new_bar(
         String::from("Entry WPM"),
@@ -230,7 +221,7 @@ pub fn render_charts(app: &Demo, ui: &mut Ui) {
 
     for (i, u) in app.selected_users.iter().enumerate() {
         if let Ok(Some(metrics)) = get_metrics(u.0) {
-            let color = colors[i % colors.len()];
+            let color = COLORS[i % COLORS.len()];
 
             bars.push(new_bar(
                 format!("{} WPM", u.1.clone()),
@@ -250,14 +241,27 @@ pub fn render_charts(app: &Demo, ui: &mut Ui) {
         }
     }
 
-    let chart = BarChart::new(bars).name("Metrics");
-
     ui.vertical(|ui| {
         Plot::new("Metrics Plot")
             .height(ui.available_height() / 2.)
             .show(ui, |plot_ui| {
-                plot_ui.bar_chart(chart);
+                plot_ui.bar_chart(BarChart::new(bars).name("Metrics"));
             });
+
+        Plot::new("Pairs Plot").legend(Legend::default()).show(ui, |plot_ui| {
+            for (i, p) in app.selected_points.iter().enumerate() {
+                let mut color = Color32::GRAY;
+                if p.0 != "Entry" {
+                    color = COLORS[i % COLORS.len()];
+                }
+
+                let points = Points::new(p.1.clone())
+                    .color(color)
+                    .radius(3.)
+                    .name(p.0.clone());
+                plot_ui.points(points);
+            }
+        });
     });
 }
 
@@ -285,4 +289,28 @@ fn new_bar(text: String, pos: f64, height: f64, color: Color32, offset: f64) -> 
         stroke: Stroke::NONE,
         fill: color,
     }
+}
+
+pub fn get_selected_points(
+    entry_data: Vec<(String, Duration)>,
+    users: HashSet<(i32, String)>,
+) -> Vec<(String, Vec<[f64; 2]>)> {
+    let mut points = Vec::new();
+
+    let entry_without_duration: Vec<String> = entry_data.iter().map(|(s, _)| s.clone()).collect();
+
+    for u in users.iter() {
+        let mut x = 0.;
+        let query_pairs = get_pairs(u.0, entry_without_duration.clone()).unwrap();
+        let mut pairs_vec: Vec<[f64; 2]> = Vec::new();
+
+        for p in query_pairs.iter() {
+            pairs_vec.push([x, *p as f64]);
+            x += 1.;
+        }
+        points.push((u.1.clone(), pairs_vec));
+    }
+
+    points.push((String::from("Entry"), build_points_from_durations(&entry_data)));
+    points
 }

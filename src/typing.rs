@@ -3,7 +3,7 @@ use std::{sync::mpsc, thread};
 use crate::{
     constants,
     demo::Demo,
-    util::{draw_cursor, gen_passage, get_match, key_to_char},
+    util::{draw_cursor, gen_passage, get_match, get_selected_points, key_to_char},
 };
 use eframe::egui::{pos2, Align2, Color32, Key, Ui};
 
@@ -113,13 +113,16 @@ pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
             if app.use_database {
                 let (tx, rx) = mpsc::channel();
                 let type_data = app.type_data.clone();
+                let selected_users = app.selected_users.clone();
             
                 thread::spawn(move || {
+                    let selected_points = get_selected_points(type_data.get_pairs_copy(), selected_users);
                     let result = get_match(&type_data).unwrap();
-                    tx.send(result).unwrap();
+                    tx.send((selected_points, result)).unwrap();
                 });
             
-                if let Ok(result) = rx.recv() {
+                if let Ok((selected_points, result)) = rx.recv() {
+                    app.selected_points = selected_points;
                     app.match_and_counts = result;
                 }
             }

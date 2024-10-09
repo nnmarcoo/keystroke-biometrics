@@ -69,6 +69,15 @@ impl Data {
         self.update_data();
     }
 
+    pub fn get_pairs_copy(&self) -> Vec<(String, Duration)> {
+        let pairs_lock = self.get_pairs();
+        let pairs = pairs_lock.lock().unwrap();
+        pairs
+            .iter()
+            .map(|((key1, key2), duration)| (format!("{}{}", key1, key2), *duration))
+            .collect() 
+    }
+
     pub fn update_data(&self) {
         let pairs_clone = Arc::clone(&self.pairs);
         let history_clone = self.history.clone();
@@ -342,4 +351,16 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                 }
             });
         });
+}
+
+pub fn build_points_from_durations(entry_data: &Vec<(String, Duration)>) -> Vec<[f64; 2]> {
+    let mut points = Vec::new();
+
+    for (i, (_, duration)) in entry_data.iter().enumerate() {
+        let x = i as f64;
+        let duration_as_f64 = duration.as_secs_f64();
+        points.push([x, duration_as_f64 * 1000.]);
+    }
+
+    points
 }

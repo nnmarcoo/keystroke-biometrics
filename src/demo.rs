@@ -31,6 +31,7 @@ pub struct Demo {
     pub users: Vec<(i32, String)>,
     pub selected_users: HashSet<(i32, String)>,
     pub match_and_counts: (i32, i32, HashMap<i32, usize>),
+    pub selected_points: Vec<(String, Vec<[f64; 2]>)>
 }
 
 impl Default for Demo {
@@ -52,6 +53,7 @@ impl Default for Demo {
             users: Vec::new(),
             selected_users: HashSet::new(),
             match_and_counts: (i32::MAX, i32::MAX, HashMap::new()),
+            selected_points: Vec::new(),
         }
     }
 }

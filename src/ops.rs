@@ -91,6 +91,19 @@ pub fn insert_pairs(user_id: i32, type_data: &Data) {
     }
 }
 
+pub fn get_pairs(user_id: i32, pair_list: Vec<String>) -> QueryResult<Vec<f32>> {
+    use crate::schema::pairs::dsl::*;
+    let mut conn = establish_connection().unwrap();
+
+    let interval_values = pairs
+        .filter(id.eq(user_id))
+        .filter(pair.eq_any(pair_list))
+        .select(interval)
+        .load::<f32>(&mut conn)?;
+
+    Ok(interval_values)
+}
+
 pub fn match_pairs(type_data: &Data) -> HashMap<i32, usize> {
     let data = type_data.clean_pairs(2.);
     let mut conn = establish_connection().unwrap();
