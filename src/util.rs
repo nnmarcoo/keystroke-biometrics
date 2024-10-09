@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use eframe::egui::{
     pos2, Color32, Grid, IconData, Key, Painter, Pos2, RichText, ScrollArea, Stroke, Ui,
 };
-use egui_plot::{Bar, BarChart, Legend, Orientation, Plot};
+use egui_plot::{Bar, BarChart, Orientation, Plot};
 use image::load_from_memory;
 use rand::seq::SliceRandom;
 
@@ -113,7 +113,6 @@ pub fn draw_cursor(painter: &Painter, pos: Pos2, color: Color32) {
     );
 }
 
-// TODO: Create context menu to delete user from db
 pub fn render_users(app: &mut Demo, ui: &mut Ui) {
     ScrollArea::vertical()
         .id_salt("users_scroll")
@@ -200,14 +199,18 @@ pub fn render_charts(app: &Demo, ui: &mut Ui) {
     let mut x = 0.;
 
     let colors = [
-        Color32::from_rgb(255, 100, 100), // Red
-        Color32::from_rgb(100, 255, 100), // Green
-        Color32::from_rgb(100, 100, 255), // Blue
-        Color32::from_rgb(255, 255, 100), // Yellow
-        Color32::from_rgb(255, 100, 255), // Magenta
-        Color32::from_rgb(100, 255, 255), // Cyan
-        Color32::from_rgb(150, 150, 150), // Gray
-    ];
+    Color32::from_rgb(255, 100, 100), // Red
+    Color32::from_rgb(100, 255, 100), // Green
+    Color32::from_rgb(100, 100, 255), // Blue
+    Color32::from_rgb(255, 255, 100), // Yellow
+    Color32::from_rgb(255, 100, 255), // Magenta
+    Color32::from_rgb(100, 255, 255), // Cyan
+    Color32::from_rgb(255, 165, 0),   // Orange
+    Color32::from_rgb(75, 0, 130),    // Indigo
+    Color32::from_rgb(255, 20, 147),  // Deep Pink
+    Color32::from_rgb(173, 255, 47),  // Green Yellow
+    Color32::from_rgb(0, 255, 255),   // Aqua
+];
 
     bars.push(new_bar(
         String::from("Entry WPM"),
