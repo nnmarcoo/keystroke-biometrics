@@ -1,4 +1,4 @@
-use crate::{ops::{create_user, get_users, insert_metrics, insert_pairs}, util::{get_match, get_selected_points}};
+use crate::{ops::{create_user, get_users, insert_metrics, insert_pairs}, util::get_match};
 use eframe::egui::{vec2, Button, DragValue, TextEdit, Ui};
 
 use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle, util::gen_passage};

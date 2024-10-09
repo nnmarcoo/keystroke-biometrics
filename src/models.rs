@@ -1,5 +1,5 @@
 use crate::schema::{metrics, pairs, user};
-use diesel::sql_types::{Float, Integer, Text};
+use diesel::sql_types::Integer;
 
 #[derive(Queryable, Insertable, Identifiable)]
 #[table_name = "user"]
@@ -34,8 +34,4 @@ pub struct Pair {
 pub struct PairResult {
     #[diesel(sql_type = Integer)]
     pub id: i32,
-    #[diesel(sql_type = Text)]
-    pub pair: String,
-    #[diesel(sql_type = Float)]
-    pub interval: f32,
 }
