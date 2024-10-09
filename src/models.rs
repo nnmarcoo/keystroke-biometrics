@@ -2,20 +2,20 @@ use crate::schema::{metrics, pairs, user};
 use diesel::sql_types::Integer;
 
 #[derive(Queryable, Insertable, Identifiable)]
-#[table_name = "user"]
+#[diesel(table_name = user)]
 pub struct User {
     pub id: i32,
     pub name: String,
 }
 
 #[derive(Insertable)]
-#[table_name = "user"]
+#[diesel(table_name = user)]
 pub struct NewUser<'a> {
     pub name: &'a str,
 }
 
 #[derive(Queryable, Insertable)]
-#[table_name = "metrics"]
+#[diesel(table_name = metrics)]
 pub struct Metric {
     pub id: i32,
     pub wpm: f32,
@@ -23,7 +23,7 @@ pub struct Metric {
 }
 
 #[derive(Queryable, Insertable)]
-#[table_name = "pairs"]
+#[diesel(table_name = pairs)]
 pub struct Pair {
     pub id: i32,
     pub pair: String,
