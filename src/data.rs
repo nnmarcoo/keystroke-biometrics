@@ -303,6 +303,17 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                 Separator::default().ui(ui);
                 ui.end_row();
 
+                let create_context_menu = |ui: &mut Ui| {
+                    if ui.button("Export to .sql").clicked() {
+                        let _ = app.type_data.export_to_sql();
+                        ui.close_menu();
+                    }
+                    if ui.button("Export to .csv").clicked() {
+                        let _ = app.type_data.export_to_csv();
+                        ui.close_menu();
+                    }
+                };
+
                 for ((key1, key2), duration) in &sorted_pairs {
                     let duration_ms = duration.as_secs_f64() * 1000.0;
                     let k1 = key1.to_ascii_uppercase();
@@ -325,17 +336,6 @@ pub fn render_data(app: &mut Demo, ui: &mut Ui) {
                     if pair_res.clicked() || time_res.clicked() {
                         app.user_data_sort_mode = !app.user_data_sort_mode;
                     }
-
-                    let create_context_menu = |ui: &mut Ui| {
-                        if ui.button("Export to .sql").clicked() {
-                            let _ = app.type_data.export_to_sql();
-                            ui.close_menu();
-                        }
-                        if ui.button("Export to .csv").clicked() {
-                            let _ = app.type_data.export_to_csv();
-                            ui.close_menu();
-                        }
-                    };
 
                     pair_res.context_menu(|ui| create_context_menu(ui));
                     time_res.context_menu(|ui| create_context_menu(ui));

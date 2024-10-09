@@ -10,7 +10,7 @@ use crate::{
     constants::{self, FONT_ID_12, SOFT_GREEN},
     data::Data,
     demo::Demo,
-    ops::{match_metrics, match_pairs},
+    ops::{get_users, match_metrics, match_pairs, remove_user},
 };
 
 pub fn gen_passage(length: usize) -> String {
@@ -118,6 +118,14 @@ pub fn render_users(app: &Demo, ui: &mut Ui) {
         .id_salt("users_scroll")
         .show(ui, |ui| {
             Grid::new("users_grid").striped(true).show(ui, |ui| {
+
+                let create_context_menu = |ui: &mut Ui, name: String, id: i32| {
+                    if ui.button(format!("Delete {}", name)).clicked() {
+                        let _ = remove_user(id);
+                        ui.close_menu();
+                    }
+                };
+
                 for u in app.users.iter() {
                     if app.match_and_counts.2.contains_key(&u.0) {
                         let mut color = Color32::GRAY;
@@ -128,7 +136,7 @@ pub fn render_users(app: &Demo, ui: &mut Ui) {
                         let v = *app.match_and_counts.2.get(&u.0).unwrap() as f32;
                         let p = v / (app.match_and_counts.1 as f32) * 100.;
 
-                        ui.label(RichText::new(&u.1).font(FONT_ID_12).color(color))
+                        let name_res = ui.label(RichText::new(&u.1).font(FONT_ID_12).color(color))
                             .on_hover_text(&format!("ID: {}", u.0));
 
                         ui.label(
@@ -139,6 +147,8 @@ pub fn render_users(app: &Demo, ui: &mut Ui) {
                         .on_hover_text(&format!("{} / {}", v, app.match_and_counts.1));
 
                         ui.end_row();
+
+                        name_res.context_menu(|ui| create_context_menu(ui, u.1.clone(), u.0));
                     }
                 }
 

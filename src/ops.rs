@@ -29,6 +29,20 @@ pub fn clear_users() -> QueryResult<usize> {
     diesel::delete(user).execute(&mut conn)
 }
 
+pub fn remove_user(user_id: i32) -> QueryResult<usize> {
+    use crate::schema::metrics::dsl as metrics_dsl;
+    use crate::schema::pairs::dsl as pairs_dsl;
+    use crate::schema::user::dsl as user_dsl;
+
+    let mut conn = establish_connection().unwrap();
+
+    diesel::delete(pairs_dsl::pairs.filter(pairs_dsl::id.eq(user_id))).execute(&mut conn)?;
+
+    diesel::delete(metrics_dsl::metrics.filter(metrics_dsl::id.eq(user_id))).execute(&mut conn)?;
+
+    diesel::delete(user_dsl::user.filter(user_dsl::id.eq(user_id))).execute(&mut conn)
+}
+
 pub fn get_users() -> QueryResult<Vec<(i32, String)>> {
     use crate::schema::user::dsl::*;
     let mut conn = establish_connection().unwrap();
