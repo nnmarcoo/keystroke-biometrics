@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 eframe = "0.29.1"
+egui_plot = "0.29.0"
 rand = "0.8.5"
 image = "0.25.2"
 diesel = { version = "2.2.4", features = ["mysql", "chrono"] }

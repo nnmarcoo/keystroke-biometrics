@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use eframe::egui::{
     pos2, Color32, Grid, IconData, Key, Painter, Pos2, RichText, ScrollArea, Stroke, Ui,
 };
+use egui_plot::{Bar, BarChart, Legend, Orientation, Plot};
 use image::load_from_memory;
 use rand::seq::SliceRandom;
 
@@ -10,7 +11,7 @@ use crate::{
     constants::{self, FONT_ID_12, SOFT_GREEN},
     data::Data,
     demo::Demo,
-    ops::{match_metrics, match_pairs, remove_user},
+    ops::{get_metrics, match_metrics, match_pairs, remove_user},
 };
 
 pub fn gen_passage(length: usize) -> String {
@@ -113,12 +114,11 @@ pub fn draw_cursor(painter: &Painter, pos: Pos2, color: Color32) {
 }
 
 // TODO: Create context menu to delete user from db
-pub fn render_users(app: &Demo, ui: &mut Ui) {
+pub fn render_users(app: &mut Demo, ui: &mut Ui) {
     ScrollArea::vertical()
         .id_salt("users_scroll")
         .show(ui, |ui| {
             Grid::new("users_grid").striped(true).show(ui, |ui| {
-
                 let create_context_menu = |ui: &mut Ui, name: String, id: i32| {
                     if ui.button(format!("Delete {}", name)).clicked() {
                         let _ = remove_user(id);
@@ -135,8 +135,13 @@ pub fn render_users(app: &Demo, ui: &mut Ui) {
 
                         let v = *app.match_and_counts.2.get(&u.0).unwrap() as f32;
                         let p = v / (app.match_and_counts.1 as f32) * 100.;
+                        let user = &(u.0, u.1.clone());
 
-                        let name_res = ui.label(RichText::new(&u.1).font(FONT_ID_12).color(color))
+                        let name_res = ui
+                            .selectable_label(
+                                app.selected_users.contains(user),
+                                RichText::new(&u.1).font(FONT_ID_12).color(color),
+                            )
                             .on_hover_text(&format!("ID: {}", u.0));
 
                         ui.label(
@@ -149,21 +154,108 @@ pub fn render_users(app: &Demo, ui: &mut Ui) {
                         ui.end_row();
 
                         name_res.context_menu(|ui| create_context_menu(ui, u.1.clone(), u.0));
+
+                        if name_res.clicked() {
+                            if app.selected_users.contains(user) {
+                                app.selected_users.remove(user);
+                            } else {
+                                app.selected_users.insert(user.clone());
+                            }
+                        }
                     }
                 }
 
                 for u in app.users.iter() {
                     if !app.match_and_counts.2.contains_key(&u.0) {
-                        ui.label(RichText::new(&u.1).font(FONT_ID_12).color(Color32::GRAY))
+                        let user = &(u.0, u.1.clone());
+
+                        let name_res = ui
+                            .selectable_label(
+                                app.selected_users.contains(user),
+                                RichText::new(&u.1).font(FONT_ID_12).color(Color32::GRAY),
+                            )
                             .on_hover_text(&format!("ID: {}", u.0));
 
                         ui.label(RichText::new("0.00%").font(FONT_ID_12).color(Color32::GRAY))
                             .on_hover_text("0 / 0");
                         ui.end_row();
+
+                        name_res.context_menu(|ui| create_context_menu(ui, u.1.clone(), u.0));
+
+                        if name_res.clicked() {
+                            if app.selected_users.contains(user) {
+                                app.selected_users.remove(user);
+                            } else {
+                                app.selected_users.insert(user.clone());
+                            }
+                        }
                     }
                 }
             });
         });
+}
+
+pub fn render_charts(app: &Demo, ui: &mut Ui) {
+    let mut bars: Vec<Bar> = Vec::new();
+    let mut x = 0.;
+
+    let colors = [
+        Color32::from_rgb(255, 100, 100), // Red
+        Color32::from_rgb(100, 255, 100), // Green
+        Color32::from_rgb(100, 100, 255), // Blue
+        Color32::from_rgb(255, 255, 100), // Yellow
+        Color32::from_rgb(255, 100, 255), // Magenta
+        Color32::from_rgb(100, 255, 255), // Cyan
+        Color32::from_rgb(150, 150, 150), // Gray
+    ];
+
+    bars.push(new_bar(
+        String::from("Entry WPM"),
+        x,
+        app.type_data.get_wpm_value() as f64,
+        Color32::GRAY,
+        0.,
+    ));
+    bars.push(new_bar(
+        String::from("entry CPE"),
+        x,
+        app.type_data.get_cpe_value() as f64,
+        Color32::GRAY,
+        app.type_data.get_wpm_value() as f64 + 1.,
+    ));
+    x += 1.5;
+
+    for (i, u) in app.selected_users.iter().enumerate() {
+        if let Ok(Some(metrics)) = get_metrics(u.0) {
+            let color = colors[i % colors.len()];
+
+            bars.push(new_bar(
+                format!("{} WPM", u.1.clone()),
+                x,
+                metrics.0 as f64,
+                color,
+                0.,
+            ));
+            bars.push(new_bar(
+                format!("{} CPE", u.1.clone()),
+                x,
+                metrics.1 as f64,
+                color,
+                metrics.0 as f64 + 1.,
+            ));
+            x += 1.5;
+        }
+    }
+
+    let chart = BarChart::new(bars).name("Metrics");
+
+    ui.vertical(|ui| {
+        Plot::new("Metrics Plot")
+            .height(ui.available_height() / 2.)
+            .show(ui, |plot_ui| {
+                plot_ui.bar_chart(chart);
+            });
+    });
 }
 
 pub fn get_match(type_data: &Data) -> Option<(i32, i32, HashMap<i32, usize>)> {
@@ -177,4 +269,17 @@ pub fn get_match(type_data: &Data) -> Option<(i32, i32, HashMap<i32, usize>)> {
     let total_count: i32 = pairs.values().sum::<usize>() as i32;
 
     Some((max_key, total_count, pairs))
+}
+
+fn new_bar(text: String, pos: f64, height: f64, color: Color32, offset: f64) -> Bar {
+    Bar {
+        orientation: Orientation::Vertical,
+        name: text,
+        argument: pos,
+        value: height,
+        base_offset: Some(offset),
+        bar_width: 1.,
+        stroke: Stroke::NONE,
+        fill: color,
+    }
 }

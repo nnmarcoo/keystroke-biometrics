@@ -57,7 +57,18 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
             }
         }
 
-        ui.add_space(ui.available_width() - 94.);
+        if ui
+            .add_enabled(
+                app.use_database,
+                Button::new("🔄").min_size(vec2(16., 16.)),
+            )
+            .on_hover_text("Refresh users")
+            .clicked()
+        {
+            app.users = get_users().unwrap();
+        }
+
+        ui.add_space(ui.available_width() - 95.);
 
         if ui
             .add(DragValue::new(&mut app.word_count).range(1..=200))

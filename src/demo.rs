@@ -7,7 +7,7 @@ use crate::{
     data::{render_data, Data},
     top_bar::render_top_bar,
     typing::render_typing,
-    util::{gen_passage, render_users},
+    util::{gen_passage, render_charts, render_users},
 };
 use eframe::{
     egui::{CentralPanel, Context, Key, Separator, SystemTheme, ViewportCommand, Widget},
@@ -29,6 +29,7 @@ pub struct Demo {
     pub fullscreen: bool,
 
     pub users: Vec<(i32, String)>,
+    pub selected_users: HashSet<(i32, String)>,
     pub match_and_counts: (i32, i32, HashMap<i32, usize>),
 }
 
@@ -49,6 +50,7 @@ impl Default for Demo {
             fullscreen: false,
 
             users: Vec::new(),
+            selected_users: HashSet::new(),
             match_and_counts: (i32::MAX, i32::MAX, HashMap::new()),
         }
     }
@@ -88,6 +90,9 @@ impl App for Demo {
                 if self.use_database {
                     render_users(self, ui);
                     Separator::default().vertical().ui(ui);
+                    if !self.selected_users.is_empty() {
+                        render_charts(self, ui);
+                    }
                 }
             });
         });

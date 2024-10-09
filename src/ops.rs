@@ -22,13 +22,6 @@ pub fn create_user(user_name: &str) -> QueryResult<i32> {
         .first(&mut conn) // Retrieve the first (most recent) entry
 }
 
-pub fn clear_users() -> QueryResult<usize> {
-    use crate::schema::user::dsl::*;
-    let mut conn = establish_connection().unwrap();
-
-    diesel::delete(user).execute(&mut conn)
-}
-
 pub fn remove_user(user_id: i32) -> QueryResult<usize> {
     use crate::schema::metrics::dsl as metrics_dsl;
     use crate::schema::pairs::dsl as pairs_dsl;
@@ -52,6 +45,17 @@ pub fn get_users() -> QueryResult<Vec<(i32, String)>> {
     Ok(results)
 }
 
+pub fn get_metrics(user_id: i32) -> QueryResult<Option<(f32, f32)>> {
+    use crate::schema::metrics::dsl::*;
+    let mut conn = establish_connection().unwrap();
+
+    metrics
+        .filter(id.eq(user_id))
+        .select((wpm, cpe)) 
+        .first::<(f32, f32)>(&mut conn) 
+        .optional()
+}
+
 pub fn insert_metrics(user_id: i32, user_wpm: f32, user_cpe: f32) {
     use crate::schema::metrics::dsl::*;
     let mut conn = establish_connection().unwrap();
@@ -64,13 +68,6 @@ pub fn insert_metrics(user_id: i32, user_wpm: f32, user_cpe: f32) {
     let _ = diesel::insert_into(metrics)
         .values(&new_metric)
         .execute(&mut conn);
-}
-
-pub fn clear_metrics() -> QueryResult<usize> {
-    use crate::schema::metrics::dsl::*;
-    let mut conn = establish_connection().unwrap();
-
-    diesel::delete(metrics).execute(&mut conn)
 }
 
 pub fn insert_pairs(user_id: i32, type_data: &Data) {
@@ -92,13 +89,6 @@ pub fn insert_pairs(user_id: i32, type_data: &Data) {
             .values(&new_pair)
             .execute(&mut conn);
     }
-}
-
-pub fn clear_pairs() -> QueryResult<usize> {
-    use crate::schema::pairs::dsl::*;
-    let mut conn = establish_connection().unwrap();
-
-    diesel::delete(pairs).execute(&mut conn)
 }
 
 pub fn match_pairs(type_data: &Data) -> HashMap<i32, usize> {
