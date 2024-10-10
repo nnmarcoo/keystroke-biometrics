@@ -1,5 +1,5 @@
 <h1>
-  keystroke biometrics
+  Keystroke Biometrics
 </h1>
 <p>Rudimentary comparison between flight time, WPM, and CPE to determine who is typing. It directly compares the entry data with the closest match in a MySQL database. This project was built to learn <a href="https://diesel.rs/">Diesel ORM</a> and <a href="https://dev.mysql.com/">MySQL</a>.</p>
 
@@ -23,9 +23,14 @@
   <img src="./assets/example.png" alt="Example usage">
 </div>
 <hr />
+
 <h1>
-  Building
+  Build
 </h1>
-<p>
-  todo
-</p>
+
+> ### Requirements
+> - <a href="https://www.rust-lang.org/tools/install">Rust</a>
+> - <a href="https://diesel.rs/guides/getting-started">Diesel CLI</a>
+> - <a href="https://dev.mysql.com/">MySQL</a>
+
+After running `diesel setup`, you can run `cargo run`. This demo uses a hardcoded database URL of `mysql://root@localhost/keys`. You can use something like <a href="https://www.apachefriends.org/download.html">XAMPP</a> for the database which must use <a href="https://github.com/nnmarcoo/keystroke-biometrics/blob/main/migrations/2024-10-06-144846_keys/up.sql">this</a> schema.
