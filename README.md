@@ -35,7 +35,7 @@
 
 After running `diesel setup`, you can run `cargo run`. This demo uses a hardcoded database URL of `mysql://root@localhost/keys`. You can use something like <a href="https://www.apachefriends.org/download.html">XAMPP</a> for the database which must use <a href="https://github.com/nnmarcoo/keystroke-biometrics/blob/main/migrations/2024-10-06-144846_keys/up.sql">this</a> schema.
 
-**On Windows, you may run into issues with recognizing the MySQL dependencies; this could be resolved with the below enviroment variables**
+**On Windows, you may run into issues with recognizing the MySQL dependencies; this might be resolved with the below enviroment variables**
 <details>
   <summary>Variables</summary>
   <code>DEP_MYSQLCLIENT_LIB_DIR = C:\Program Files\MySQL\MySQL Connector C 6.1\lib\vs14</code><br>
