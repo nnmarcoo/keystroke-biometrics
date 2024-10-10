@@ -18,7 +18,14 @@
   <p>Corrections Per Entry (CPE) is the ratio of corrections per characters typed.</p>
 </details>
 
-<video width="600" controls>
-  <source src="./assets/video.mov" type="video/quicktime">
-  Your browser does not support the video tag.
-</video>
+<hr />
+<div align="center">
+  <img src="./assets/example.png" alt="Example usage">
+</div>
+<hr />
+<h1>
+  Building
+</h1>
+<p>
+  todo
+</p>
