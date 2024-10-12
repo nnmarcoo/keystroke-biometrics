@@ -9,6 +9,7 @@ use eframe::egui::{
 use egui_plot::{Bar, BarChart, Legend, Orientation, Plot, Points};
 use image::load_from_memory;
 use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 use crate::{
     constants::{self, COLORS, FONT_ID_12, SOFT_GREEN},
@@ -17,39 +18,17 @@ use crate::{
     ops::{get_metrics, get_pairs, match_metrics, match_pairs, remove_user},
 };
 
-pub fn gen_passage(length: usize) -> String {
-    let words = vec![
-        "apple", "bottle", "create", "dragon", "energy", "family", "giant", "hollow", "iceberg",
-        "jungle", "kitten", "lemon", "mountain", "notion", "orange", "python", "quiver", "raven",
-        "system", "tiger", "umbrella", "vivid", "whisper", "xenon", "yellow", "zebra", "anchor",
-        "butter", "clown", "dynamo", "eagle", "frost", "grape", "hammer", "island", "jacket",
-        "kettle", "lantern", "monster", "novel", "ocean", "puzzle", "quartz", "rabbit", "shadow",
-        "tornado", "unicorn", "valley", "wizard", "xerox", "yawn", "zephyr", "abyss", "balance",
-        "circle", "daring", "echo", "feather", "glimmer", "horizon", "ignite", "journey", "keypad",
-        "library", "motion", "network", "oasis", "panic", "radiant", "signal", "tempo", "utopia",
-        "venture", "whale", "yodel", "zealot", "arch", "biscuit", "cloud", "disaster", "ember",
-        "feast", "glory", "harvest", "impact", "joker", "knot", "light", "moment", "nature",
-        "option", "pillar", "query", "rescue", "shield", "track", "union", "vector", "whimsy",
-        "zone", "arrow", "bubble", "candle", "dust", "envy", "flash", "gleam", "habit", "ink",
-        "juggle", "kiosk", "link", "mirror", "navy", "orchid", "plume", "quilt", "razor", "siren",
-        "trick", "under", "victor", "xray", "yearn", "zero", "angle", "branch", "cabin", "delta",
-        "flame", "gloom", "hatch", "ivory", "jigsaw", "kite", "leaf", "mask", "naval", "pistol",
-        "quote", "river", "spark", "tide", "velvet", "wind", "yarn", "zinc", "aura", "blend",
-        "crane", "delight", "essence", "flock", "gaze", "haste", "idea", "joint", "magnet",
-        "neutral", "outlook", "pulse", "quasar", "rush", "sprint", "truth", "uphold", "vortex",
-        "warp", "zeal", "beacon", "castle", "dash", "eclipse", "fume", "glow", "herd", "inkling",
-        "jewel", "kingdom", "loft", "mystic", "night", "plank", "quest", "ridge", "shine",
-        "tangle", "uplift", "vista", "whistle", "yield", "zenith", "bold", "crisp", "dusty",
-        "freight", "glider", "hurdle", "kick", "lively", "mild", "noisy", "oath", "pounce",
-        "quiet", "riot", "sleek", "tough", "vault", "wrest", "yolk", "axis", "breeze", "crash",
-        "dive", "flare", "hush", "lure", "mist", "nudge", "quench", "reel", "silk", "uplift",
-        "yodel",
+pub fn get_passage() -> String {
+    let mut words = vec![
+        "the", "quick", "brown", "fox", "jumps", "over", "lazy", "dogs",
+        "while", "bright", "birds", "sing", "and", "trees", "sway", "gently",
+        "in", "the", "soft", "breeze",
     ];
 
-    let mut rng = rand::thread_rng();
-    let passage: Vec<&str> = words.choose_multiple(&mut rng, length).cloned().collect();
+    let mut rng = thread_rng();
 
-    passage.join(" ")
+    words.shuffle(&mut rng);
+    words.join(" ")
 }
 
 pub fn key_to_char(key: Key) -> Option<char> {

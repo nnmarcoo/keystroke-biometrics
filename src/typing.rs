@@ -3,13 +3,13 @@ use std::{sync::mpsc, thread};
 use crate::{
     constants,
     demo::Demo,
-    util::{draw_cursor, gen_passage, get_match, get_selected_points, key_to_char},
+    util::{draw_cursor, get_passage, get_match, get_selected_points, key_to_char},
 };
 use eframe::egui::{pos2, Align2, Color32, Key, Ui};
 
 pub fn render_typing(app: &mut Demo, ui: &mut Ui) {
     if app.input == app.passage {
-        app.passage = gen_passage(app.word_count);
+        app.passage = get_passage();
         app.input.clear();
 
         if app.input.len() == 0 {

@@ -1,7 +1,7 @@
 use crate::{ops::{create_user, get_users, insert_metrics, insert_pairs}, util::get_match};
-use eframe::egui::{vec2, Button, DragValue, TextEdit, Ui};
+use eframe::egui::{vec2, Button, TextEdit, Ui};
 
-use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle, util::gen_passage};
+use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle, util::get_passage};
 
 pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
     let toggle_text = if app.use_database {
@@ -68,16 +68,7 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
             app.users = get_users().unwrap();
         }
 
-        ui.add_space(ui.available_width() - 95.);
-
-        if ui
-            .add(DragValue::new(&mut app.word_count).range(1..=200))
-            .on_hover_text("Passage length")
-            .changed()
-        {
-            app.passage = gen_passage(app.word_count);
-            app.input.clear();
-        }
+        ui.add_space(ui.available_width() - 45.);
 
         if ui
             .add_enabled(true, Button::new("⟲").min_size(vec2(16., 16.)))
@@ -85,7 +76,7 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
             .clicked()
         {
             app.type_data.insert_break();
-            app.passage = gen_passage(app.word_count);
+            app.passage = get_passage();
             app.input.clear();
         }
 

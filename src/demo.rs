@@ -7,7 +7,7 @@ use crate::{
     data::{render_data, Data},
     top_bar::render_top_bar,
     typing::render_typing,
-    util::{gen_passage, render_charts, render_users},
+    util::{get_passage, render_charts, render_users},
 };
 use eframe::{
     egui::{CentralPanel, Context, Key, Separator, SystemTheme, ViewportCommand, Widget},
@@ -22,7 +22,6 @@ pub struct Demo {
     pub previous_keys: HashSet<Key>,
     pub backspace_debounce: i32,
     pub username: String,
-    pub word_count: usize,
     pub use_database: bool,
     pub is_distracted: bool,
     pub user_data_sort_mode: bool,
@@ -37,14 +36,13 @@ pub struct Demo {
 impl Default for Demo {
     fn default() -> Self {
         Self {
-            passage: gen_passage(25),
+            passage: get_passage(),
             input: String::new(),
             type_data: Data::new(),
 
             previous_keys: HashSet::new(),
             backspace_debounce: 0,
             username: String::new(),
-            word_count: 25,
             use_database: false,
             is_distracted: true,
             user_data_sort_mode: true,
