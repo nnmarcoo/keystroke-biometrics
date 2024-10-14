@@ -168,39 +168,9 @@ impl Data {
         Arc::clone(&self.wpm)
     }
 
-    pub fn clean_pairs(&self, threshold: f64) -> HashMap<(char, char), Duration> {
-        let pairs_lock = self.pairs.lock().unwrap();
-        let pairs: HashMap<(char, char), Duration> = pairs_lock.clone();
-
-        let durations: Vec<f64> = pairs
-            .values()
-            .map(|duration| duration.as_secs_f64() * 1000.0)
-            .collect();
-
-        if durations.is_empty() {
-            return HashMap::new();
-        }
-
-        let mean = durations.iter().sum::<f64>() / durations.len() as f64;
-        let variance = durations
-            .iter()
-            .map(|duration| (duration - mean).powi(2))
-            .sum::<f64>()
-            / durations.len() as f64;
-        let std_dev = variance.sqrt();
-
-        let lower_bound = mean - threshold * std_dev;
-        let upper_bound = mean + threshold * std_dev;
-
-        let cleaned_pairs = pairs
-            .into_iter()
-            .filter(|(_, duration)| {
-                let duration_ms = duration.as_secs_f64() * 1000.;
-                duration_ms >= lower_bound && duration_ms <= upper_bound
-            })
-            .collect::<HashMap<(char, char), Duration>>();
-
-        cleaned_pairs
+    pub fn get_pairs_value(&self) -> HashMap<(char, char), Duration> {
+        let pairs_lock = self.pairs.lock().unwrap_or_else(|e| e.into_inner());
+        pairs_lock.clone()
     }
 
     pub fn get_wpm_value(&self) -> f32 {

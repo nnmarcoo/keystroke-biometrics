@@ -74,7 +74,7 @@ pub fn insert_pairs(user_id: i32, type_data: &Data) {
     use crate::schema::pairs::dsl::*;
     let mut conn = establish_connection().unwrap();
 
-    let data = type_data.clean_pairs(2.);
+    let data = type_data.get_pairs_value();
 
     for (k, v) in data.iter() {
         let key_pair = format!("{}{}", k.0, k.1);
@@ -105,7 +105,7 @@ pub fn get_pairs(user_id: i32, pair_list: Vec<String>) -> QueryResult<Vec<f32>> 
 }
 
 pub fn match_pairs(type_data: &Data) -> HashMap<i32, usize> {
-    let data = type_data.clean_pairs(2.);
+    let data = type_data.get_pairs_value();
     let mut conn = establish_connection().unwrap();
 
     let mut user_counts: HashMap<i32, usize> = HashMap::new();
