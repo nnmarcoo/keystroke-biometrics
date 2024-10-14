@@ -17,7 +17,7 @@ use crate::{
 };
 
 pub fn get_passage() -> String {
-    String::from("Quick brown dogs jump over lazy foxes while bright frogs chase speedy kittens through sunny fields near forests as graceful horses race across wide meadows")
+    String::from("quick brown dogs jump over lazy foxes while bright frogs chase speedy kittens through sunny fields near forests as graceful horses race across wide meadows")
 }
 
 pub fn key_to_char(key: Key) -> Option<char> {
@@ -243,7 +243,7 @@ pub fn render_charts(app: &Demo, ui: &mut Ui) {
 
 pub fn get_match(type_data: &Data) -> Option<(i32, i32, HashMap<i32, usize>)> {
     let mut pairs = match_pairs(type_data);
-    let metrics = match_metrics(type_data).unwrap();
+    let metrics = match_metrics(type_data).unwrap_or((0,0));
 
     pairs.entry(metrics.0).and_modify(|e| *e += 5).or_insert(1);
     pairs.entry(metrics.1).and_modify(|e| *e += 5).or_insert(1);

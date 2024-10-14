@@ -89,7 +89,9 @@ impl App for Demo {
 
                 if self.use_database {
                     render_users(self, ui);
-                    Separator::default().vertical().ui(ui);
+                    if !self.users.is_empty() {
+                        Separator::default().vertical().ui(ui);
+                    }
                     if !self.selected_users.is_empty() {
                         render_charts(self, ui);
                     }
