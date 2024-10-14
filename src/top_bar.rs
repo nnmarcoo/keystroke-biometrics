@@ -1,7 +1,10 @@
-use crate::{ops::{create_user, get_users, insert_metrics, insert_pairs}, util::get_match};
+use crate::{
+    ops::{create_user, get_users, insert_metrics, insert_pairs},
+    util::get_match,
+};
 use eframe::egui::{vec2, Button, TextEdit, Ui};
 
-use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle, util::get_passage};
+use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle};
 
 pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
     let toggle_text = if app.use_database {
@@ -58,27 +61,14 @@ pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
         }
 
         if ui
-            .add_enabled(
-                app.use_database,
-                Button::new("🔄").min_size(vec2(16., 16.)),
-            )
+            .add_enabled(app.use_database, Button::new("🔄").min_size(vec2(16., 16.)))
             .on_hover_text("Refresh users")
             .clicked()
         {
             app.users = get_users().unwrap();
         }
 
-        ui.add_space(ui.available_width() - 45.);
-
-        if ui
-            .add_enabled(true, Button::new("⟲").min_size(vec2(16., 16.)))
-            .on_hover_text("Generate new passage")
-            .clicked()
-        {
-            app.type_data.insert_break();
-            app.passage = get_passage();
-            app.input.clear();
-        }
+        ui.add_space(ui.available_width() - 20.);
 
         if ui
             .add_enabled(true, Button::new("🗙").min_size(vec2(16., 16.)))

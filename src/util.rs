@@ -8,8 +8,6 @@ use eframe::egui::{
 };
 use egui_plot::{Bar, BarChart, Legend, Orientation, Plot, Points};
 use image::load_from_memory;
-use rand::seq::SliceRandom;
-use rand::thread_rng;
 
 use crate::{
     constants::{self, COLORS, FONT_ID_12, SOFT_GREEN},
@@ -19,16 +17,7 @@ use crate::{
 };
 
 pub fn get_passage() -> String {
-    let mut words = vec![
-        "the", "quick", "brown", "fox", "jumps", "over", "lazy", "dogs",
-        "while", "bright", "birds", "sing", "and", "trees", "sway", "gently",
-        "in", "the", "soft", "breeze",
-    ];
-
-    let mut rng = thread_rng();
-
-    words.shuffle(&mut rng);
-    words.join(" ")
+    String::from("Quick brown dogs jump over lazy foxes while bright frogs chase speedy kittens through sunny fields near forests as graceful horses race across wide meadows")
 }
 
 pub fn key_to_char(key: Key) -> Option<char> {
@@ -142,7 +131,10 @@ pub fn render_users(app: &mut Demo, ui: &mut Ui) {
                             } else {
                                 app.selected_users.insert(user.clone());
                             }
-                            app.selected_points = get_selected_points(app.type_data.get_pairs_copy(), app.selected_users.clone());
+                            app.selected_points = get_selected_points(
+                                app.type_data.get_pairs_copy(),
+                                app.selected_users.clone(),
+                            );
                         }
                     }
                 }
@@ -170,7 +162,10 @@ pub fn render_users(app: &mut Demo, ui: &mut Ui) {
                             } else {
                                 app.selected_users.insert(user.clone());
                             }
-                            app.selected_points = get_selected_points(app.type_data.get_pairs_copy(), app.selected_users.clone());
+                            app.selected_points = get_selected_points(
+                                app.type_data.get_pairs_copy(),
+                                app.selected_users.clone(),
+                            );
                         }
                     }
                 }
@@ -227,20 +222,22 @@ pub fn render_charts(app: &Demo, ui: &mut Ui) {
                 plot_ui.bar_chart(BarChart::new(bars).name("Metrics"));
             });
 
-        Plot::new("Pairs Plot").legend(Legend::default()).show(ui, |plot_ui| {
-            for (i, p) in app.selected_points.iter().enumerate() {
-                let mut color = Color32::GRAY;
-                if p.0 != "Entry" {
-                    color = COLORS[i % COLORS.len()];
-                }
+        Plot::new("Pairs Plot")
+            .legend(Legend::default())
+            .show(ui, |plot_ui| {
+                for (i, p) in app.selected_points.iter().enumerate() {
+                    let mut color = Color32::GRAY;
+                    if p.0 != "Entry" {
+                        color = COLORS[i % COLORS.len()];
+                    }
 
-                let points = Points::new(p.1.clone())
-                    .color(color)
-                    .radius(3.)
-                    .name(p.0.clone());
-                plot_ui.points(points);
-            }
-        });
+                    let points = Points::new(p.1.clone())
+                        .color(color)
+                        .radius(3.)
+                        .name(p.0.clone());
+                    plot_ui.points(points);
+                }
+            });
     });
 }
 
@@ -290,6 +287,9 @@ pub fn get_selected_points(
         points.push((u.1.clone(), pairs_vec));
     }
 
-    points.push((String::from("Entry"), build_points_from_durations(&entry_data)));
+    points.push((
+        String::from("Entry"),
+        build_points_from_durations(&entry_data),
+    ));
     points
 }
