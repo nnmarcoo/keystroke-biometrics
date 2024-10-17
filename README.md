@@ -43,3 +43,5 @@ After running `diesel setup`, you can run `cargo run`. This demo uses a hardcode
   <code>MYSQLCLIENT_VERSION = 8.0</code><br>
   <code>Path += C:\Program Files\MySQL\MySQL Server 8.0\bin</code><br>
 </details>
+
+<i>This project is a demonstration and may not work effectively for many users unless a significant amount of data is collected to build more accurate models.</i>
