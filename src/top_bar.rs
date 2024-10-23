@@ -8,9 +8,9 @@ use crate::{db::establish_connection, demo::Demo, toggle_switch::toggle};
 
 pub fn render_top_bar(app: &mut Demo, ui: &mut Ui) {
     let toggle_text = if app.use_database {
-        "Upload data to local database"
+        "Connected to database"
     } else {
-        "Store data in-app (lost on exit)"
+        "Disconnected from database"
     };
 
     ui.horizontal(|ui| {
