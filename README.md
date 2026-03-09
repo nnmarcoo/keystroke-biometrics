@@ -1,47 +1,50 @@
-<h1>
-  Keystroke Biometrics
-</h1>
-<p>Rudimentary comparison between flight time, WPM, and CPE to determine who is typing. It directly compares the entry data with the closest match in a MySQL database. This project was built to learn <a href="https://diesel.rs/">Diesel ORM</a> and <a href="https://dev.mysql.com/">MySQL</a>.</p>
-
-<details>
-  <summary>What is Flight Time?</summary>
-  <p>Flight time is the time it takes for a person to move from one key to the next while typing.</p>
-</details>
-
-<details>
-  <summary>What is WPM?</summary>
-  <p>Words Per Minute (WPM) is a common metric used to measure typing speed.</p>
-</details>
-
-<details>
-  <summary>What is CPE?</summary>
-  <p>Corrections Per Entry (CPE) is the ratio of corrections per characters typed.</p>
-</details>
-
-<hr />
 <div align="center">
-  <img src="./assets/example.png" alt="Example usage">
+  <h1>Keystroke Biometrics</h1>
+  <p><em>rudimentary user identification via typing dynamics</em></p>
+
+  ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-0077aa?style=for-the-badge)
+  ![License](https://img.shields.io/badge/license-MIT-0077aa?style=for-the-badge)
+  ![Status](https://img.shields.io/badge/status-demo-0077aa?style=for-the-badge)
 </div>
-<hr />
 
-<h1>
-  Build
-</h1>
+---
 
-> ### Requirements
-> - <a href="https://www.rust-lang.org/tools/install">Rust</a>
-> - <a href="https://diesel.rs/guides/getting-started">Diesel CLI</a>
-> - <a href="https://dev.mysql.com/">MySQL</a>
+Compares flight time, WPM, and CPE against stored profiles in a MySQL database to identify who is typing. Built to learn [Diesel ORM](https://diesel.rs/) and [MySQL](https://dev.mysql.com/).
 
-After running `diesel setup`, you can run `cargo run`. This demo uses a hardcoded database URL of `mysql://root@localhost/keys`. You can use something like <a href="https://www.apachefriends.org/download.html">XAMPP</a> for the database which must use <a href="https://github.com/nnmarcoo/keystroke-biometrics/blob/main/migrations/2024-10-06-144846_keys/up.sql">this</a> schema.
+<div align="center">
+  <img src="./assets/example.png" alt="Example usage" width="800">
+</div>
 
-**On Windows, you may run into issues with recognizing the MySQL dependencies; this might be resolved with the below enviroment variables**
+---
+
+## Metrics
+
+- **Flight time** — time elapsed between consecutive keystrokes
+- **WPM** — words per minute; typing speed
+- **CPE** — corrections per entry; ratio of corrections to characters typed
+
+## Build
+
+**Requirements**
+
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Diesel CLI](https://diesel.rs/guides/getting-started)
+- [MySQL](https://dev.mysql.com/)
+
+After running `diesel setup`, run `cargo run`. The database URL is hardcoded as `mysql://root@localhost/keys`. A local MySQL instance (e.g. [XAMPP](https://www.apachefriends.org/download.html)) must use [this schema](https://github.com/nnmarcoo/keystroke-biometrics/blob/main/migrations/2024-10-06-144846_keys/up.sql).
+
+**Windows — MySQL dependency issues**
+
+If the build fails to locate MySQL libraries, set these environment variables:
+
 <details>
   <summary>Variables</summary>
   <code>DEP_MYSQLCLIENT_LIB_DIR = C:\Program Files\MySQL\MySQL Connector C 6.1\lib\vs14</code><br>
   <code>MYSQLCLIENT_LIB_DIR = C:\Program Files\MySQL\MySQL Server 8.0\lib</code><br>
   <code>MYSQLCLIENT_VERSION = 8.0</code><br>
-  <code>Path += C:\Program Files\MySQL\MySQL Server 8.0\bin</code><br>
+  <code>Path += C:\Program Files\MySQL\MySQL Server 8.0\bin</code>
 </details>
 
-<i>This project is a demonstration and may not work effectively for many users unless a significant amount of data is collected to build more accurate models.</i>
+---
+
+*This is a demonstration. Accuracy improves significantly with more collected data.*
