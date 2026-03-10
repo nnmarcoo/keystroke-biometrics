@@ -9,7 +9,7 @@
 
 ---
 
-Compares flight time, WPM, and CPE against stored profiles in a MySQL database to identify who is typing. Built to learn [Diesel ORM](https://diesel.rs/) and [MySQL](https://dev.mysql.com/).
+Built to demonstrate understanding of databases for a class in school. Keystroke dynamics are being further explored for an NLP class in the [kdnlp](https://github.com/nnmarcoo/kdnlp) repository. <i>This</i> project directly compares flight time, WPM, and CPE against stored profiles in a MySQL database to identify who is typing. Built to learn [Diesel ORM](https://diesel.rs/) and [MySQL](https://dev.mysql.com/).
 
 <div align="center">
   <img src="./assets/example.png" alt="Example usage" width="800">
